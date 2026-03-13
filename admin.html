@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Admin Panel - Chalet Kurung Tengor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        /* (styles remain exactly as in the original admin.html) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .admin-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .admin-header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 0.8rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #333;
+            flex-shrink: 0;
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
+            border-radius: 4px;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .logo-text span {
+            font-size: 0.7rem;
+            color: #666;
+            font-weight: 500;
+            display: block;
+        }
+        
+        .admin-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        
+        .back-to-site {
+            margin-left: auto;
+            margin-right: 5px;
+        }
+        
+        .back-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .back-btn:hover {
+            background-color: #388e3c;
+        }
+        
+        .notification-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .notification-icon {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #333;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-icon:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: #f44336;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.6rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 45px;
+            right: -10px;
+            width: 320px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+        
+        @media (max-width: 480px) {
+            .notification-dropdown {
+                position: fixed;
+                top: 70px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+            }
+        }
+        
+        .notification-dropdown.active {
+            display: block;
+        }
+        
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fafafa;
+        }
+        
+        .notification-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mark-read-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 500;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .mark-read-btn:hover {
+            background-color: #e8eaf6;
+        }
+        
+        .notification-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            gap: 10px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .notification-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .notification-item.unread {
+            background-color: #e8f0fe;
+        }
+        
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #667eea;
+        }
+        
+        .notification-avatar {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+            font-size: 0.9rem;
+        }
+        
+        .notification-desc {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        
+        .notification-time {
+            color: #999;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .notification-footer {
+            padding: 0.8rem 1rem;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+        
+        .view-all-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .view-all-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .user-info {
+            text-align: right;
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .user-info {
+                display: block;
+            }
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .admin-main {
+            flex: 1;
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-content h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .welcome-content p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .stats-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 1.2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card.pending {
+            border-left-color: #ff9800;
+        }
+        
+        .stat-card.confirmed {
+            border-left-color: #4caf50;
+        }
+        
+        .stat-card.cancelled {
+            border-left-color: #f44336;
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-icon {
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .filter-section {
+            background-color: white;
+            padding: 1.2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .filter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 992px) {
+            .filter-controls {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            width: 100%;
+        }
+        
+        .filter-group label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .filter-select, .filter-input {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            width: 100%;
+            background-color: white;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 0.8rem;
+            width: 100%;
+        }
+        
+        @media (min-width: 992px) {
+            .filter-actions {
+                width: auto;
+                margin-left: auto;
+            }
+        }
+        
+        .filter-btn {
+            padding: 0.6rem 1rem;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .filter-btn.clear {
+            background-color: #f5f5f5;
+            color: #666;
+        }
+        
+        .bookings-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 1.2rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .section-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section-actions {
+            display: flex;
+            gap: 0.8rem;
+            width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+            .section-actions {
+                width: auto;
+            }
+        }
+        
+        .action-btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .action-btn {
+                flex: none;
+            }
+        }
+        
+        .export-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .delete-all-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 2rem auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .bookings-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+        
+        .bookings-table th {
+            background-color: #f8f9fa;
+            padding: 0.8rem;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 0.85rem;
+        }
+        
+        .bookings-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+            font-size: 0.85rem;
+        }
+        
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .status-pending {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .status-confirmed {
+            background-color: #e8f5e9;
+            color: #4caf50;
+        }
+        
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.75rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .confirm-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .cancel-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .view-btn {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .no-bookings {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+            font-size: 0.95rem;
+            display: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+        }
+        
+        .modal-body {
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+        }
+        
+        @media (max-width: 480px) {
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+        
+        .modal-btn {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        
+        .modal-btn.primary {
+            background-color: #667eea;
+            color: white;
+        }
+        
+        .modal-btn.secondary {
+            background-color: #f5f5f5;
+            color: #666;
+        }
+        
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem;
+        }
+        
+        .login-box {
+            background-color: white;
+            padding: 2rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .login-logo h1 {
+            font-size: 1.6rem;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+        
+        .login-logo p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .login-form label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .login-error {
+            background-color: #ffebee;
+            color: #f44336;
+            padding: 0.6rem 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            display: none;
+        }
+        
+        .login-info {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .login-info p {
+            margin-bottom: 0.3rem;
+        }
+        
+        .login-info strong {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        /* AUDIO element hidden but present - FIXED with multiple fallback sources */
+        #notification-sound {
+            display: none;
+        }
+        
+        .admin-footer {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .footer-content p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid #667eea;
+            max-width: 350px;
+            margin: 0 auto;
+            pointer-events: auto;
+        }
+        
+        @media (min-width: 480px) {
+            .toast-notification {
+                left: auto;
+                right: 20px;
+            }
+        }
+        
+        .toast-notification i {
+            font-size: 1.3rem;
+            color: #4caf50;
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+            font-size: 0.9rem;
+        }
+        
+        .toast-message {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .filter-btn,
+        .action-btn,
+        .action-btn-small,
+        .modal-btn,
+        .login-btn,
+        .notification-icon,
+        .back-btn,
+        .logout-btn {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .table-container {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .notification-list {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (max-width: 380px) {
+            .logo-text h1 {
+                font-size: 1rem;
+            }
+            .logo-text span {
+                font-size: 0.6rem;
+            }
+            .back-btn span {
+                display: none;
+            }
+            .logout-btn span {
+                display: none;
+            }
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            .section-title {
+                font-size: 1.1rem;
+            }
+        }
+        /* Stop alarm button */
+        .stop-alarm-btn {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        .stop-alarm-btn:hover {
+            background-color: #f57c00;
+        }
+        .stop-alarm-btn i {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="login-page" class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>Chalet Kurung Tengor</h1>
+                <p>Admin Panel</p>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="admin-email">Email Address</label>
+                    <input type="email" id="admin-email" placeholder="admin@chalet.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Password</label>
+                    <input type="password" id="admin-password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="login-btn">Login to Admin Panel</button>
+                <div class="login-error" id="login-error">
+                    Invalid email or password
+                </div>
+            </form>
+            <div class="login-info">
+                <p>Default Admin Credentials:</p>
+                <p><strong>Email:</strong> admin@chalet.com</p>
+                <p><strong>Password:</strong> admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="admin-container" style="display: none;">
+        <!-- Hidden audio element for notification sound - FIXED with multiple sources and loop enabled -->
+        <audio id="notification-sound" loop preload="auto" style="display: none;">
+            <!-- Multiple sources for better compatibility -->
+            <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+            <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.ogg" type="audio/ogg">
+            <!-- Base64 encoded fallback beep (very short) - looped will keep playing -->
+            <source src="data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAAA8AP8A/AD/APwA/wD8AP8A/AD/APwA/wD8AP8A/AD/APwA/wD8AP8A/AD/APwA/wD8AP8A/AD/APwA/wD8AP8A" type="audio/wav">
+        </audio>
+
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Chalet Logo">
+                    <div class="logo-text">
+                        <h1>Chalet Kurung</h1>
+                        <span>Admin</span>
+                    </div>
+                </a>
+                
+                <div class="back-to-site">
+                    <a href="index.html" class="back-btn">
+                        <i class="fas fa-home"></i>
+                        <span>Website</span>
+                    </a>
+                </div>
+                
+                <div class="admin-actions">
+                    <!-- NOTIFICATION CENTER -->
+                    <div class="notification-container">
+                        <button class="notification-icon" id="notification-icon">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                        </button>
+                        
+                        <div class="notification-dropdown" id="notification-dropdown">
+                            <div class="notification-header">
+                                <h3><i class="fas fa-bell"></i> Notifications</h3>
+                                <button class="mark-read-btn" id="mark-all-read">Mark all read</button>
+                            </div>
+                            <div class="notification-list" id="notification-list">
+                                <div style="padding: 2rem; text-align: center; color: #666;">
+                                    <i class="fas fa-bell-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                    <p>No notifications</p>
+                                </div>
+                            </div>
+                            <div class="notification-footer">
+                                <button class="view-all-btn" id="view-all-notifications">
+                                    View All Bookings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-user">
+                        <div class="user-info">
+                            <div class="user-name" id="current-user">Admin</div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                        <button class="logout-btn" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-content">
+                    <h2>Welcome to Admin Dashboard</h2>
+                    <p>Manage bookings, view statistics, and monitor your chalet's performance.</p>
+                </div>
+            </section>
+
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3 class="stat-label">Total</h3>
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="total-bookings">0</div>
+                </div>
+                
+                <div class="stat-card pending">
+                    <div class="stat-header">
+                        <h3 class="stat-label">Pending</h3>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="pending-bookings">0</div>
+                </div>
+                
+                <div class="stat-card confirmed">
+                    <div class="stat-header">
+                        <h3 class="stat-label">Confirmed</h3>
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="confirmed-bookings">0</div>
+                </div>
+                
+                <div class="stat-card cancelled">
+                    <div class="stat-header">
+                        <h3 class="stat-label">Cancelled</h3>
+                        <div class="stat-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" id="cancelled-bookings">0</div>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <section class="filter-section">
+                <h3 class="filter-title">Filter Bookings</h3>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="filter-status">Status</label>
+                        <select id="filter-status" class="filter-select">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filter-room">Room Type</label>
+                        <select id="filter-room" class="filter-select">
+                            <option value="all">All Rooms</option>
+                            <option value="queen">Standard Queen</option>
+                            <option value="seaview">Seaview Queen</option>
+                            <option value="triple">Seaview Triple</option>
+                            <option value="standard">Standard Triple</option>
+                            <option value="family">Standard Family</option>
+                            <option value="superior">Superior Seaview</option>
+                            <option value="seaview-family">Seaview Family</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filter-date">Check-in Date</label>
+                        <input type="date" id="filter-date" class="filter-input">
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button class="filter-btn" id="apply-filters">
+                            <i class="fas fa-filter"></i> Apply
+                        </button>
+                        <button class="filter-btn clear" id="clear-filters">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bookings Section -->
+            <section class="bookings-section">
+                <div class="section-header">
+                    <h2 class="section-title">Booking Management</h2>
+                    <div class="section-actions">
+                        <button class="action-btn export-btn" id="export-bookings">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="action-btn delete-all-btn" id="delete-all-bookings">
+                            <i class="fas fa-trash"></i> Delete All
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Loading Spinner -->
+                <div class="spinner" id="bookings-spinner"></div>
+                
+                <!-- Bookings Table -->
+                <div class="table-container">
+                    <table class="bookings-table" id="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Guest</th>
+                                <th>Room</th>
+                                <th>Check-in</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-table-body">
+                            <!-- Bookings will be loaded here -->
+                        </tbody>
+                    </table>
+                    <div class="no-bookings" id="no-bookings-message">
+                        No bookings found
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="admin-footer">
+            <div class="footer-content">
+                <p>&copy; <span id="current-year"></span> Chalet Kurung Tengor</p>
+                <p>Admin Panel v1.0</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Confirm Action</h3>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="modal-cancel">Cancel</button>
+                <button class="modal-btn primary" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Details Modal -->
+    <div class="modal" id="details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Booking Details</h3>
+                <button class="close-modal" id="close-details-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="details-content">
+                <!-- Details will be loaded here -->
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="close-details-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 2000; pointer-events: none; display: flex; flex-direction: column; align-items: flex-end;"></div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDdJoegR4pbGPmDPzQ52_xEVAvnXoObvCw",
+            authDomain: "chalet-kurung-tengar.firebaseapp.com",
+            projectId: "chalet-kurung-tengar",
+            storageBucket: "chalet-kurung-tengar.firebasestorage.app",
+            messagingSenderId: "650202016501",
+            appId: "1:650202016501:web:13d53090373d47dc1573bc"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global variables
+        let currentBookingId = null;
+        let currentAction = null;
+        let notificationsUnsubscribe = null;
+        let processedNotificationIds = new Set();
+        let unreadCount = 0;
+        let notifications = [];
+        let lastNotificationTime = 0;
+        const NOTIFICATION_COOLDOWN = 2000; // 2 seconds cooldown
+        let alarmLoopActive = false; // NEW: flag to track if alarm is playing
+
+        // DOM Elements
+        const loginPage = document.getElementById('login-page');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const currentUserSpan = document.getElementById('current-user');
+        const currentYearSpan = document.getElementById('current-year');
+        const bookingsSpinner = document.getElementById('bookings-spinner');
+        const bookingsTableBody = document.getElementById('bookings-table-body');
+        const noBookingsMsg = document.getElementById('no-bookings-message');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const detailsModal = document.getElementById('details-modal');
+        const detailsContent = document.getElementById('details-content');
+        const toastContainer = document.getElementById('toast-container');
+
+        // Notification elements
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+        const notificationBadge = document.getElementById('notification-badge');
+        const notificationList = document.getElementById('notification-list');
+        const markAllReadBtn = document.getElementById('mark-all-read');
+        const viewAllBtn = document.getElementById('view-all-notifications');
+        const notificationSound = document.getElementById('notification-sound');
+
+        // Stats elements
+        const totalBookingsEl = document.getElementById('total-bookings');
+        const pendingBookingsEl = document.getElementById('pending-bookings');
+        const confirmedBookingsEl = document.getElementById('confirmed-bookings');
+        const cancelledBookingsEl = document.getElementById('cancelled-bookings');
+
+        // Filter elements
+        const filterStatus = document.getElementById('filter-status');
+        const filterRoom = document.getElementById('filter-room');
+        const filterDate = document.getElementById('filter-date');
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const exportBtn = document.getElementById('export-bookings');
+        const deleteAllBtn = document.getElementById('delete-all-bookings');
+
+        // Modal elements
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
+        const closeModal = document.getElementById('close-modal');
+        const closeDetailsModal = document.getElementById('close-details-modal');
+        const closeDetailsBtn = document.getElementById('close-details-btn');
+
+        // Room name mapping
+        const roomNames = {
+            'queen': 'Standard Queen',
+            'seaview': 'Seaview Queen',
+            'triple': 'Seaview Triple',
+            'standard': 'Standard Triple',
+            'family': 'Standard Family',
+            'superior': 'Superior Seaview',
+            'seaview-family': 'Seaview Family'
+        };
+
+        // ============= NOTIFICATION SYSTEM - FIXED WITH LOOPING ALARM =============
+        
+        // Function to start alarm loop
+        function startAlarmLoop() {
+            if (alarmLoopActive) return; // already playing
+            alarmLoopActive = true;
+            
+            // Show stop button in notification dropdown header
+            const header = document.querySelector('.notification-header');
+            if (header) {
+                // Remove existing stop button if any
+                const existingBtn = document.getElementById('stop-alarm-btn');
+                if (existingBtn) existingBtn.remove();
+                
+                const stopBtn = document.createElement('button');
+                stopBtn.id = 'stop-alarm-btn';
+                stopBtn.className = 'stop-alarm-btn';
+                stopBtn.innerHTML = '<i class="fas fa-stop-circle"></i> Stop Alarm';
+                stopBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    stopAlarmLoop();
+                });
+                header.appendChild(stopBtn);
+            }
+            
+            // Play the sound in a loop (audio element already has 'loop' attribute)
+            if (notificationSound) {
+                notificationSound.currentTime = 0;
+                notificationSound.play().catch(e => {
+                    console.log('Audio play failed:', e);
+                    // Fallback to browser vibration if supported
+                    if (navigator.vibrate) {
+                        const vibrateInterval = setInterval(() => {
+                            if (!alarmLoopActive) {
+                                clearInterval(vibrateInterval);
+                                return;
+                            }
+                            navigator.vibrate([500, 500, 500]);
+                        }, 1500);
+                    }
+                });
+            }
+        }
+
+        // Function to stop alarm loop
+        function stopAlarmLoop() {
+            alarmLoopActive = false;
+            if (notificationSound) {
+                notificationSound.pause();
+                notificationSound.currentTime = 0;
+            }
+            // Remove stop button
+            const stopBtn = document.getElementById('stop-alarm-btn');
+            if (stopBtn) stopBtn.remove();
+        }
+
+        // Play notification sound (now just triggers the loop)
+        function playNotificationSound() {
+            const now = Date.now();
+            if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) return;
+            lastNotificationTime = now;
+            
+            // Start the looping alarm
+            startAlarmLoop();
+        }
+
+        // Show toast notification
+        function showToast(booking) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.pointerEvents = 'auto';
+            toast.innerHTML = `
+                <i class="fas fa-bell" style="color: #667eea;"></i>
+                <div class="toast-content">
+                    <div class="toast-title">New Booking Alert!</div>
+                    <div class="toast-message">
+                        <strong>${booking.name}</strong> - ${roomNames[booking.roomType] || booking.roomType}<br>
+                        <small>${new Date(booking.checkIn).toLocaleDateString()}</small>
+                    </div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 8 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 8000);
+        }
+
+        // Add notification
+        function addNotification(booking) {
+            // Prevent duplicates
+            if (processedNotificationIds.has(booking.id)) return;
+            
+            processedNotificationIds.add(booking.id);
+            
+            const notification = {
+                id: booking.id,
+                bookingId: booking.bookingId,
+                name: booking.name,
+                roomType: booking.roomType,
+                checkIn: booking.checkIn,
+                guests: booking.guests,
+                timestamp: booking.createdAt || new Date().toISOString(),
+                read: false
+            };
+            
+            notifications.unshift(notification);
+            unreadCount++;
+            updateNotificationBadge();
+            
+            // PLAY SOUND (LOOPING) AND SHOW ALERT
+            playNotificationSound();
+            showToast(booking);
+            
+            // Browser notification
+            if (Notification.permission === 'granted') {
+                new Notification('🏨 New Booking!', {
+                    body: `${booking.name} booked ${roomNames[booking.roomType] || booking.roomType}`,
+                    icon: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80',
+                    vibrate: [200, 100, 200]
+                });
+            }
+            
+            renderNotifications();
+        }
+
+        // Update notification badge
+        function updateNotificationBadge() {
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                notificationBadge.style.display = 'flex';
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+
+        // Render notifications
+        function renderNotifications() {
+            if (notifications.length === 0) {
+                notificationList.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: #666;">
+                        <i class="fas fa-bell-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>No notifications</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            const recentNotifications = notifications.slice(0, 10);
+            
+            recentNotifications.forEach(notification => {
+                const date = new Date(notification.timestamp);
+                const timeAgo = getTimeAgo(date);
+                const initials = notification.name.charAt(0).toUpperCase();
+                
+                html += `
+                    <div class="notification-item ${notification.read ? '' : 'unread'}" data-booking-id="${notification.id}">
+                        <div class="notification-avatar">${initials}</div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.name}</div>
+                            <div class="notification-desc">
+                                ${roomNames[notification.roomType] || notification.roomType}
+                            </div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> ${timeAgo}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            notificationList.innerHTML = html;
+            
+            // Add click listeners
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const bookingId = this.getAttribute('data-booking-id');
+                    markAsRead(bookingId);
+                    viewBookingDetails(bookingId);
+                    notificationDropdown.classList.remove('active');
+                });
+            });
+        }
+
+        // Mark as read
+        function markAsRead(notificationId) {
+            const notification = notifications.find(n => n.id === notificationId);
+            if (notification && !notification.read) {
+                notification.read = true;
+                unreadCount = Math.max(0, unreadCount - 1);
+                updateNotificationBadge();
+                renderNotifications();
+                // If no unread notifications left, stop the alarm
+                if (unreadCount === 0) {
+                    stopAlarmLoop();
+                }
+            }
+        }
+
+        // Mark all as read
+        function markAllAsRead() {
+            notifications.forEach(n => n.read = true);
+            unreadCount = 0;
+            updateNotificationBadge();
+            renderNotifications();
+            stopAlarmLoop(); // Stop alarm when all read
+        }
+
+        // Get time ago
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            return days + 'd ago';
+        }
+
+        // Setup notifications listener
+        function setupNotificationsListener() {
+            if (notificationsUnsubscribe) notificationsUnsubscribe();
+            
+            notificationsUnsubscribe = db.collection('bookings')
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const booking = { id: change.doc.id, ...change.doc.data() };
+                            // Only notify for new pending bookings
+                            if (booking.status === 'pending' || !booking.status) {
+                                const createdAt = booking.createdAt ? new Date(booking.createdAt) : new Date();
+                                const now = new Date();
+                                const diffSeconds = (now - createdAt) / 1000;
+                                // Notify if booking is less than 30 seconds old
+                                if (diffSeconds < 30) {
+                                    addNotification(booking);
+                                } else {
+                                    processedNotificationIds.add(booking.id);
+                                }
+                            }
+                        }
+                    });
+                    loadBookings();
+                });
+        }
+
+        // ============= AUTHENTICATION =============
+        
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                showAdminDashboard(user);
+                loadBookings();
+                // Request notification permission
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+                processedNotificationIds.clear();
+                notifications = [];
+                unreadCount = 0;
+                updateNotificationBadge();
+                setupNotificationsListener();
+            } else {
+                showLoginPage();
+                clearDashboardData();
+                if (notificationsUnsubscribe) notificationsUnsubscribe();
+                stopAlarmLoop(); // Stop alarm on logout
+            }
+        });
+
+        function requireAuth() {
+            if (!auth.currentUser) {
+                showLoginPage();
+                return false;
+            }
+            return true;
+        }
+
+        function clearDashboardData() {
+            bookingsTableBody.innerHTML = '';
+            totalBookingsEl.textContent = '0';
+            pendingBookingsEl.textContent = '0';
+            confirmedBookingsEl.textContent = '0';
+            cancelledBookingsEl.textContent = '0';
+            noBookingsMsg.style.display = 'none';
+            notifications = [];
+            unreadCount = 0;
+            updateNotificationBadge();
+            stopAlarmLoop();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            currentYearSpan.textContent = new Date().getFullYear();
+            
+            // Pre-load audio on user interaction
+            const preloadAudio = () => {
+                if (notificationSound) {
+                    notificationSound.load();
+                    // Try to play and immediately pause to unlock audio on mobile
+                    notificationSound.play().then(() => {
+                        notificationSound.pause();
+                        notificationSound.currentTime = 0;
+                    }).catch(() => {});
+                }
+                document.removeEventListener('touchstart', preloadAudio);
+                document.removeEventListener('click', preloadAudio);
+            };
+            
+            document.addEventListener('touchstart', preloadAudio);
+            document.addEventListener('click', preloadAudio);
+            
+            if (auth.currentUser) {
+                showAdminDashboard(auth.currentUser);
+                loadBookings();
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+                setupNotificationsListener();
+            } else {
+                showLoginPage();
+            }
+
+            // Login form
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('admin-email').value;
+                const password = document.getElementById('admin-password').value;
+                
+                const loginBtn = e.target.querySelector('.login-btn');
+                const originalText = loginBtn.textContent;
+                loginBtn.textContent = 'Logging in...';
+                loginBtn.disabled = true;
+                
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    loginError.style.display = 'none';
+                } catch (error) {
+                    loginError.style.display = 'block';
+                    console.error('Login error:', error);
+                } finally {
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                }
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', async function() {
+                if (notificationsUnsubscribe) notificationsUnsubscribe();
+                stopAlarmLoop(); // stop alarm on logout
+                await auth.signOut();
+            });
+
+            // Filters
+            applyFiltersBtn.addEventListener('click', () => requireAuth() && loadBookings());
+            clearFiltersBtn.addEventListener('click', () => {
+                if (requireAuth()) {
+                    filterStatus.value = 'all';
+                    filterRoom.value = 'all';
+                    filterDate.value = '';
+                    loadBookings();
+                }
+            });
+
+            // Export
+            exportBtn.addEventListener('click', () => requireAuth() && exportBookingsToCSV());
+
+            // Delete all
+            deleteAllBtn.addEventListener('click', () => {
+                if (requireAuth()) {
+                    showConfirmationModal(
+                        'Delete All Bookings',
+                        'Delete ALL bookings? This cannot be undone.',
+                        'deleteAll'
+                    );
+                }
+            });
+
+            // Modal controls
+            modalCancel.addEventListener('click', hideConfirmationModal);
+            closeModal.addEventListener('click', hideConfirmationModal);
+            closeDetailsModal.addEventListener('click', hideDetailsModal);
+            closeDetailsBtn.addEventListener('click', hideDetailsModal);
+
+            window.addEventListener('click', function(e) {
+                if (e.target === confirmationModal) hideConfirmationModal();
+                if (e.target === detailsModal) hideDetailsModal();
+            });
+
+            modalConfirm.addEventListener('click', async function() {
+                if (!requireAuth()) {
+                    hideConfirmationModal();
+                    return;
+                }
+                
+                switch(currentAction) {
+                    case 'confirm':
+                        await updateBookingStatus(currentBookingId, 'confirmed');
+                        break;
+                    case 'cancel':
+                        await updateBookingStatus(currentBookingId, 'cancelled');
+                        break;
+                    case 'delete':
+                        await deleteBooking(currentBookingId);
+                        break;
+                    case 'deleteAll':
+                        await deleteAllBookings();
+                        break;
+                }
+                hideConfirmationModal();
+            });
+
+            // Notification listeners
+            notificationIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.notification-container')) {
+                    notificationDropdown.classList.remove('active');
+                }
+            });
+
+            markAllReadBtn.addEventListener('click', markAllAsRead);
+
+            viewAllBtn.addEventListener('click', function() {
+                notificationDropdown.classList.remove('active');
+                document.querySelector('.bookings-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Show admin dashboard
+        function showAdminDashboard(user) {
+            loginPage.style.display = 'none';
+            adminDashboard.style.display = 'flex';
+            currentUserSpan.textContent = user.email ? user.email.split('@')[0] : 'Admin';
+        }
+
+        // Show login page
+        function showLoginPage() {
+            loginPage.style.display = 'flex';
+            adminDashboard.style.display = 'none';
+            loginError.style.display = 'none';
+            document.getElementById('admin-email').value = '';
+            document.getElementById('admin-password').value = '';
+        }
+
+        // Load bookings
+        async function loadBookings() {
+            if (!requireAuth()) return;
+            
+            bookingsSpinner.style.display = 'block';
+            bookingsTableBody.innerHTML = '';
+            noBookingsMsg.style.display = 'none';
+            
+            try {
+                const statusFilter = filterStatus.value;
+                const roomFilter = filterRoom.value;
+                const dateFilter = filterDate.value;
+                
+                let query = db.collection('bookings');
+                
+                if (statusFilter !== 'all') query = query.where('status', '==', statusFilter);
+                if (roomFilter !== 'all') query = query.where('roomType', '==', roomFilter);
+                
+                const snapshot = await query.orderBy('createdAt', 'desc').get();
+                
+                bookingsSpinner.style.display = 'none';
+                
+                if (snapshot.empty) {
+                    noBookingsMsg.style.display = 'block';
+                    updateStats({});
+                    return;
+                }
+                
+                const bookings = [];
+                const stats = { total: 0, pending: 0, confirmed: 0, cancelled: 0 };
+                
+                snapshot.forEach(doc => {
+                    const booking = { id: doc.id, ...doc.data() };
+                    
+                    if (dateFilter) {
+                        const checkInDate = new Date(booking.checkIn);
+                        const filterDateObj = new Date(dateFilter);
+                        if (checkInDate.toDateString() !== filterDateObj.toDateString()) return;
+                    }
+                    
+                    bookings.push(booking);
+                    stats.total++;
+                    if (booking.status === 'pending') stats.pending++;
+                    if (booking.status === 'confirmed') stats.confirmed++;
+                    if (booking.status === 'cancelled') stats.cancelled++;
+                });
+                
+                updateStats(stats);
+                
+                if (bookings.length === 0 && dateFilter) {
+                    noBookingsMsg.style.display = 'block';
+                    noBookingsMsg.textContent = 'No bookings found for selected date';
+                } else {
+                    displayBookings(bookings);
+                }
+                
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                bookingsSpinner.style.display = 'none';
+                noBookingsMsg.style.display = 'block';
+                noBookingsMsg.textContent = 'Error loading bookings';
+            }
+        }
+
+        // Update stats
+        function updateStats(stats) {
+            totalBookingsEl.textContent = stats.total || 0;
+            pendingBookingsEl.textContent = stats.pending || 0;
+            confirmedBookingsEl.textContent = stats.confirmed || 0;
+            cancelledBookingsEl.textContent = stats.cancelled || 0;
+        }
+
+        // Display bookings
+        function displayBookings(bookings) {
+            bookingsTableBody.innerHTML = '';
+            
+            bookings.forEach(booking => {
+                const row = document.createElement('tr');
+                
+                const checkInDate = new Date(booking.checkIn);
+                const formattedCheckIn = checkInDate.toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric'
+                });
+                
+                let statusClass = 'status-pending';
+                let statusText = 'Pending';
+                if (booking.status === 'confirmed') {
+                    statusClass = 'status-confirmed';
+                    statusText = 'Confirmed';
+                } else if (booking.status === 'cancelled') {
+                    statusClass = 'status-cancelled';
+                    statusText = 'Cancelled';
+                }
+                
+                row.innerHTML = `
+                    <td><small>${booking.bookingId || booking.id.substring(0, 6)}</small></td>
+                    <td>
+                        <strong>${booking.name}</strong><br>
+                        <small>${booking.phone || 'No phone'}</small>
+                    </td>
+                    <td>${roomNames[booking.roomType] || booking.roomType}</td>
+                    <td>${formattedCheckIn}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            ${booking.status !== 'confirmed' ? 
+                                `<button class="action-btn-small confirm-btn" data-booking-id="${booking.id}">
+                                    <i class="fas fa-check"></i>
+                                </button>` : ''
+                            }
+                            ${booking.status !== 'cancelled' ? 
+                                `<button class="action-btn-small cancel-btn" data-booking-id="${booking.id}">
+                                    <i class="fas fa-times"></i>
+                                </button>` : ''
+                            }
+                            <button class="action-btn-small view-btn" data-booking-id="${booking.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-small delete-btn" data-booking-id="${booking.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                bookingsTableBody.appendChild(row);
+            });
+            
+            // Add event listeners
+            document.querySelectorAll('.confirm-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!requireAuth()) return;
+                    currentBookingId = this.getAttribute('data-booking-id');
+                    showConfirmationModal('Confirm Booking', 'Confirm this booking?', 'confirm');
+                });
+            });
+            
+            document.querySelectorAll('.cancel-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!requireAuth()) return;
+                    currentBookingId = this.getAttribute('data-booking-id');
+                    showConfirmationModal('Cancel Booking', 'Cancel this booking?', 'cancel');
+                });
+            });
+            
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!requireAuth()) return;
+                    viewBookingDetails(this.getAttribute('data-booking-id'));
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!requireAuth()) return;
+                    currentBookingId = this.getAttribute('data-booking-id');
+                    showConfirmationModal('Delete Booking', 'Delete this booking?', 'delete');
+                });
+            });
+        }
+
+        // Show confirmation modal
+        function showConfirmationModal(title, message, action) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            currentAction = action;
+            confirmationModal.style.display = 'flex';
+        }
+
+        // Hide confirmation modal
+        function hideConfirmationModal() {
+            confirmationModal.style.display = 'none';
+            currentBookingId = null;
+            currentAction = null;
+        }
+
+        // View booking details
+        async function viewBookingDetails(bookingId) {
+            if (!requireAuth()) return;
+            
+            try {
+                const doc = await db.collection('bookings').doc(bookingId).get();
+                if (doc.exists) {
+                    const booking = doc.data();
+                    
+                    const checkInDate = new Date(booking.checkIn);
+                    const checkOutDate = new Date(booking.checkOut);
+                    
+                    const details = `
+                        <p><strong>ID:</strong> ${booking.bookingId || bookingId.substring(0, 8)}</p>
+                        <p><strong>Name:</strong> ${booking.name}</p>
+                        <p><strong>Email:</strong> ${booking.email || 'N/A'}</p>
+                        <p><strong>Phone:</strong> ${booking.phone || 'N/A'}</p>
+                        <p><strong>Room:</strong> ${roomNames[booking.roomType] || booking.roomType}</p>
+                        <p><strong>Check-in:</strong> ${checkInDate.toLocaleDateString()}</p>
+                        <p><strong>Check-out:</strong> ${checkOutDate.toLocaleDateString()}</p>
+                        <p><strong>Guests:</strong> ${booking.guests || 'N/A'}</p>
+                        <p><strong>Total:</strong> MYR ${booking.totalPrice ? booking.totalPrice.toFixed(2) : '0.00'}</p>
+                        ${booking.specialRequests ? `<p><strong>Requests:</strong> ${booking.specialRequests}</p>` : ''}
+                    `;
+                    
+                    detailsContent.innerHTML = details;
+                    detailsModal.style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error viewing booking:', error);
+            }
+        }
+
+        // Hide details modal
+        function hideDetailsModal() {
+            detailsModal.style.display = 'none';
+        }
+
+        // Update booking status
+        async function updateBookingStatus(bookingId, status) {
+            if (!requireAuth()) return;
+            
+            try {
+                await db.collection('bookings').doc(bookingId).update({
+                    status: status,
+                    updatedAt: new Date().toISOString()
+                });
+                loadBookings();
+            } catch (error) {
+                console.error('Error updating booking:', error);
+                alert('Error updating booking');
+            }
+        }
+
+        // Delete booking
+        async function deleteBooking(bookingId) {
+            if (!requireAuth()) return;
+            
+            try {
+                await db.collection('bookings').doc(bookingId).delete();
+                
+                const index = notifications.findIndex(n => n.id === bookingId);
+                if (index !== -1) {
+                    if (!notifications[index].read) unreadCount = Math.max(0, unreadCount - 1);
+                    notifications.splice(index, 1);
+                    updateNotificationBadge();
+                    renderNotifications();
+                }
+                
+                processedNotificationIds.delete(bookingId);
+                loadBookings();
+                // If unread becomes zero, stop alarm
+                if (unreadCount === 0) stopAlarmLoop();
+            } catch (error) {
+                console.error('Error deleting booking:', error);
+                alert('Error deleting booking');
+            }
+        }
+
+        // Delete all bookings
+        async function deleteAllBookings() {
+            if (!requireAuth()) return;
+            
+            try {
+                const snapshot = await db.collection('bookings').get();
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                
+                notifications = [];
+                unreadCount = 0;
+                processedNotificationIds.clear();
+                updateNotificationBadge();
+                renderNotifications();
+                loadBookings();
+                stopAlarmLoop(); // stop alarm after deleting all
+            } catch (error) {
+                console.error('Error deleting all bookings:', error);
+                alert('Error deleting all bookings');
+            }
+        }
+
+        // Export to CSV
+        async function exportBookingsToCSV() {
+            if (!requireAuth()) return;
+            
+            try {
+                const snapshot = await db.collection('bookings').orderBy('createdAt', 'desc').get();
+                if (snapshot.empty) {
+                    alert('No bookings to export');
+                    return;
+                }
+                
+                let csv = 'Booking ID,Name,Email,Phone,Room Type,Check-in,Check-out,Guests,Status,Total Price\n';
+                
+                snapshot.forEach(doc => {
+                    const booking = doc.data();
+                    const checkIn = new Date(booking.checkIn).toLocaleDateString();
+                    const checkOut = new Date(booking.checkOut).toLocaleDateString();
+                    
+                    csv += `"${booking.bookingId || ''}","${booking.name || ''}","${booking.email || ''}","${booking.phone || ''}","${roomNames[booking.roomType] || booking.roomType}","${checkIn}","${checkOut}",${booking.guests || 0},"${booking.status || 'pending'}","${booking.totalPrice || '0.00'}"\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `bookings-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error exporting:', error);
+            }
+        }
+
+        // Prevent back button cache
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted && !auth.currentUser) showLoginPage();
+        });
+
+        // Clean up
+        window.addEventListener('beforeunload', function() {
+            if (notificationsUnsubscribe) notificationsUnsubscribe();
+            stopAlarmLoop();
+        });
+    </script>
+</body>
+</html>
