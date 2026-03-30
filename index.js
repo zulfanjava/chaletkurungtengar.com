@@ -6,12 +6,12 @@ const crypto = require('crypto');
 
 admin.initializeApp();
 
-// Define parameters
+// Define parameters - ADD X_SIGNATURE SECRET
 const BILLPLZ_API_KEY = defineSecret('BILLPLZ_API_KEY');
-const BILLPLZ_X_SIGNATURE = defineSecret('BILLPLZ_X_SIGNATURE');
+const BILLPLZ_X_SIGNATURE = defineSecret('BILLPLZ_X_SIGNATURE');  // ← MUST BE SET
 const BILLPLZ_COLLECTION_ID = defineString('BILLPLZ_COLLECTION_ID');
 const BILLPLZ_SANDBOX = defineBoolean('BILLPLZ_SANDBOX', { default: true });
-const APP_URL = defineString('APP_URL', { default: 'https://chalet-kurung-tengar.web.app' });
+const APP_URL = defineString('APP_URL', { default: 'https://chaletkurungtengar.com' });
 
 function getBillplzBaseUrl() {
     return BILLPLZ_SANDBOX.value() 
@@ -38,9 +38,11 @@ exports.createBillplzBill = onCall(
                 description: `Chalet Kurung Tengar - ${roomType} for ${nights} nights (${bookingId})`,
                 reference_1: bookingId,
                 reference_2: roomType,
-                callback_url: `${APP_URL.value()}/api/billplz-callback`,
+                callback_url: `${APP_URL.value()}/billplz-callback`,  // ← FIXED: removed /api/
                 redirect_url: `${APP_URL.value()}/payment-successful.html?bookingId=${bookingId}`,
             };
+            
+            console.log('Billplz request:', { url: `${getBillplzBaseUrl()}/bills`, billData });
             
             const response = await axios.post(
                 `${getBillplzBaseUrl()}/bills`,
@@ -73,14 +75,14 @@ exports.createBillplzBill = onCall(
                 guestName: name
             });
             
-            // Update booking
-            const bookingSnapshot = await admin.firestore()
+            // Update booking - FIX: Use bookingId field directly
+            const bookingQuery = await admin.firestore()
                 .collection('bookings')
                 .where('bookingId', '==', bookingId)
                 .get();
             
-            if (!bookingSnapshot.empty) {
-                const bookingDoc = bookingSnapshot.docs[0];
+            if (!bookingQuery.empty) {
+                const bookingDoc = bookingQuery.docs[0];
                 await bookingDoc.ref.update({
                     paymentStatus: 'pending',
                     paymentMethod: 'Billplz',
@@ -88,6 +90,8 @@ exports.createBillplzBill = onCall(
                     billplzBillUrl: response.data.url,
                     updatedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
+            } else {
+                console.warn(`Booking ${bookingId} not found in bookings collection`);
             }
             
             return {
@@ -106,52 +110,79 @@ exports.createBillplzBill = onCall(
     }
 );
 
-// Billplz Webhook/Callback Handler
+// Billplz Webhook/Callback Handler - FIXED Webhook Handler
 exports.billplzCallback = onRequest(
     { secrets: [BILLPLZ_X_SIGNATURE] },
     async (req, res) => {
         console.log('Received billplz callback:', req.method);
+        console.log('Headers:', req.headers);
+        console.log('Query:', req.query);
         
         try {
+            // Handle GET callback (Billplz sends GET to redirect_url)
             if (req.method === 'GET') {
-                const { billplz_id, billplz_paid, id, paid, reference_1 } = req.query;
+                const { billplz_id, billplz_paid, id, paid, reference_1, transaction_id } = req.query;
+                
+                console.log('GET callback params:', { billplz_id, billplz_paid, id, paid, reference_1 });
                 
                 if (billplz_paid === 'true' || paid === 'true') {
                     console.log('GET callback - Payment confirmed for:', reference_1);
-                    await updatePaymentAndBooking(reference_1, billplz_id || id);
+                    const billId = billplz_id || id;
+                    await updatePaymentAndBooking(reference_1, billId, transaction_id);
                     return res.redirect(`${APP_URL.value()}/payment-successful.html?bookingId=${reference_1}&status=success`);
                 }
-                return res.redirect(`${APP_URL.value()}/payment-successful.html?bookingId=${reference_1}&status=pending`);
+                return res.redirect(`${APP_URL.value()}/booking-pending.html?bookingId=${reference_1}&status=pending`);
             }
             
-            const billplzSignature = req.headers['x-billplz-signature'];
+            // Handle POST webhook (Billplz sends POST to callback_url)
+            // Get signature from header - Billplz uses X-Billplz-Signature
+            const billplzSignature = req.headers['x-billplz-signature'] || req.headers['X-Billplz-Signature'];
             
             if (!billplzSignature) {
-                console.error('No signature found');
+                console.error('No signature found in headers');
                 return res.status(400).send('No signature');
             }
             
+            // Get raw body for signature verification
             let rawBody = '';
             req.on('data', chunk => { rawBody += chunk; });
             
             req.on('end', async () => {
                 try {
+                    // Verify signature
                     const generatedSignature = crypto
                         .createHmac('sha256', BILLPLZ_X_SIGNATURE.value())
                         .update(rawBody)
                         .digest('hex');
+                    
+                    console.log('Signature verification:', { 
+                        received: billplzSignature.substring(0, 20), 
+                        generated: generatedSignature.substring(0, 20),
+                        match: generatedSignature === billplzSignature 
+                    });
                     
                     if (generatedSignature !== billplzSignature) {
                         console.error('Invalid signature');
                         return res.status(403).send('Invalid signature');
                     }
                     
-                    const data = JSON.parse(rawBody);
-                    const { id, paid_at, reference_1, state } = data;
+                    // Parse the data - Billplz sends as JSON when content-type is JSON
+                    let data;
+                    if (req.headers['content-type'] === 'application/json') {
+                        data = JSON.parse(rawBody);
+                    } else {
+                        // Handle x-www-form-urlencoded
+                        const urlParams = new URLSearchParams(rawBody);
+                        data = Object.fromEntries(urlParams);
+                    }
                     
-                    if (paid_at || state === 'paid') {
+                    console.log('Webhook data:', data);
+                    
+                    const { id, paid_at, reference_1, state, transaction_id } = data;
+                    
+                    if (paid_at || state === 'paid' || data.paid === 'true') {
                         console.log(`Payment confirmed for booking: ${reference_1}`);
-                        await updatePaymentAndBooking(reference_1, id);
+                        await updatePaymentAndBooking(reference_1, id, transaction_id);
                     }
                     
                     res.status(200).send('OK');
@@ -170,31 +201,40 @@ exports.billplzCallback = onRequest(
 );
 
 // Helper function to update payment and booking
-async function updatePaymentAndBooking(bookingId, billplzBillId) {
+async function updatePaymentAndBooking(bookingId, billplzBillId, transactionId = null) {
     try {
+        console.log(`Updating booking ${bookingId} with bill ID ${billplzBillId}`);
+        
+        // Update payments collection
         await admin.firestore().collection('payments').doc(bookingId).update({
             status: 'paid',
             paidAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            transactionId: transactionId
         });
         
-        const bookingSnapshot = await admin.firestore()
+        // Update bookings collection
+        const bookingQuery = await admin.firestore()
             .collection('bookings')
             .where('bookingId', '==', bookingId)
             .get();
         
-        if (!bookingSnapshot.empty) {
-            const bookingDoc = bookingSnapshot.docs[0];
+        if (!bookingQuery.empty) {
+            const bookingDoc = bookingQuery.docs[0];
             await bookingDoc.ref.update({
                 status: 'confirmed',
                 paymentStatus: 'completed',
                 paymentDate: admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                transactionId: transactionId
             });
             console.log(`Booking ${bookingId} updated to confirmed`);
+        } else {
+            console.error(`Booking ${bookingId} not found in bookings collection`);
         }
     } catch (error) {
         console.error('Error updating payment/booking:', error);
+        throw error;
     }
 }
 
@@ -244,13 +284,13 @@ exports.checkBillStatus = onCall(
                             paidAt: admin.firestore.FieldValue.serverTimestamp()
                         });
                         
-                        const bookingSnapshot = await admin.firestore()
+                        const bookingQuery = await admin.firestore()
                             .collection('bookings')
                             .where('bookingId', '==', bookingId)
                             .get();
                         
-                        if (!bookingSnapshot.empty) {
-                            const bookingDoc = bookingSnapshot.docs[0];
+                        if (!bookingQuery.empty) {
+                            const bookingDoc = bookingQuery.docs[0];
                             await bookingDoc.ref.update({
                                 status: 'confirmed',
                                 paymentStatus: 'completed'
