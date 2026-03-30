@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-functions-compat.js"></script>
     <style>
         /* ALL YOUR EXISTING STYLES REMAIN EXACTLY THE SAME */
         * {
@@ -2749,7 +2750,6 @@
                     <span><i class="fas fa-envelope"></i> chaletkurungtengar@gmail.com</span>
                 </div>
                 <div class="social-icons">
-                    <!-- Only Facebook and TikTok with direct links -->
                     <a href="https://www.facebook.com/chaletkurungtengarperlis" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
                     <a href="https://www.tiktok.com/@chaletkurongtengar" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
                 </div>
@@ -2777,13 +2777,15 @@
                             <li class="has-dropdown">
                                 <a href="#rooms">ROOMS & SUITES</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#queen-room">Standard Queen Room (Upper Floor)</a></li>
+                                    <li><a href="#standard-queen">Standard Queen Room (Upper Floor)</a></li>
+                                    <li><a href="#standard-triple">Standard Triple (Ground Floor)</a></li>
+                                    <li><a href="#standard-triple-wheelchair">Standard Triple Wheelchair Accessible</a></li>
+                                    <li><a href="#standard-queen-sofabed">Standard Queen with Sofabed (Upper Floor)</a></li>
+                                    <li><a href="#standard-family">Standard Family (Ground Floor)</a></li>
                                     <li><a href="#seaview-queen">Seaview Queen (Upper Floor)</a></li>
                                     <li><a href="#seaview-triple">Seaview Triple (Ground Floor)</a></li>
-                                    <li><a href="#standard-triple">Standard Triple (Ground Floor)</a></li>
-                                    <li><a href="#standard-family">Standard Family (Ground Floor)</a></li>
-                                    <li><a href="#superior-seaview">Superior Seaview (Ground Floor)</a></li>
                                     <li><a href="#seaview-family">Seaview Family (Ground Floor)</a></li>
+                                    <li><a href="#superior-seaview">Superior Seaview (Ground Floor)</a></li>
                                 </ul>
                             </li>
                             <li><a href="activity.html">ACTIVITIES</a></li>
@@ -2882,8 +2884,8 @@
         </div>
         
         <div class="rooms-container">
-            <!-- Standard Queen Room (Upper Floor) -->
-            <div class="room-card fade-in" id="queen-room">
+            <!-- STANDARD QUEEN ROOM (Upper Floor) - 5 rooms -->
+            <div class="room-card fade-in" id="standard-queen">
                 <div class="room-image-slider-container">
                     <div class="room-image-slider" id="queen-room-slider">
                         <div class="room-slide">
@@ -2925,6 +2927,7 @@
                 <div class="room-content">
                     <h3 class="room-title">Standard Queen Room <span style="font-size: 1rem; color: #666;">(2 pax - Upper Floor Only)</span></h3>
                     <div class="room-price">RM129 - RM159 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Numbers: 3B, 6B, 7B, 9B, 10B (5 rooms available)</p>
                     
                     <div class="room-features">
                         <div class="feature">
@@ -2983,7 +2986,369 @@
                 </div>
             </div>
             
-            <!-- Seaview Queen (Upper Floor) -->
+            <!-- STANDARD TRIPLE ROOM (Ground Floor) - 4 rooms -->
+            <div class="room-card fade-in" id="standard-triple">
+                <div class="room-image-slider-container">
+                    <div class="room-image-slider" id="standard-triple-slider">
+                        <div class="room-slide">
+                            <img src="images/STD1.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/STD2.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/STD3.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/STD4.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/STD5.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/STD6.png" class="room-slide-image">
+                        </div>
+                    </div>
+                    
+                    <div class="room-slider-controls">
+                        <button class="room-slider-prev" data-room="standard-triple">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="room-slider-dots" id="standard-triple-dots"></div>
+                        <button class="room-slider-next" data-room="standard-triple">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="image-counter">
+                        <span id="standard-triple-current-image">1</span> / <span id="standard-triple-total-images">6</span>
+                    </div>
+                </div>
+                
+                <div class="room-content">
+                    <h3 class="room-title">Standard Triple Room <span style="font-size: 1rem; color: #666;">(3 pax - Ground Floor Only)</span></h3>
+                    <div class="room-price">RM179 - RM209 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Numbers: 6A, 7A, 9A, 10A (4 rooms available)</p>
+                    
+                    <div class="room-features">
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Queen Bed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Single Bed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-city"></i>
+                            <span>City View</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tv"></i>
+                            <span>Smart TV</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-wifi"></i>
+                            <span>Free WiFi</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tint"></i>
+                            <span>Mineral Water</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-concierge-bell"></i>
+                            <span>Basic Toiletries</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-mug-hot"></i>
+                            <span>Kettle</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Iron Board</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-coffee"></i>
+                            <span>Coffee Table</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bath"></i>
+                            <span>Water Heater</span>
+                        </div>
+                    </div>
+                    
+                    <p class="room-description">
+                        Our Standard Triple Room on the ground floor is perfect for guests who need extra sleeping space
+                        at an affordable rate. Featuring one queen bed and one single bed, this room
+                        offers comfort and practicality with city view, Smart TV, basic toiletries, mineral water,
+                        coffee table, iron board, kettle, and water heater.
+                    </p>
+                    
+                    <button class="book-button" data-room-type="standard">Book This Room</button>
+                </div>
+            </div>
+            
+            <!-- STANDARD TRIPLE WHEELCHAIR ACCESSIBLE (Ground Floor) - 1 room -->
+            <div class="room-card fade-in" id="standard-triple-wheelchair">
+                <div class="room-image-slider-container">
+                    <div class="room-image-slider" id="wheelchair-slider">
+                        <div class="room-slide">
+                            <img src="images/STD1.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/STD2.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/STD3.png" class="room-slide-image">
+                        </div>
+                    </div>
+                    
+                    <div class="room-slider-controls">
+                        <button class="room-slider-prev" data-room="wheelchair">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="room-slider-dots" id="wheelchair-dots"></div>
+                        <button class="room-slider-next" data-room="wheelchair">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="image-counter">
+                        <span id="wheelchair-current-image">1</span> / <span id="wheelchair-total-images">3</span>
+                    </div>
+                </div>
+                
+                <div class="room-content">
+                    <h3 class="room-title">Standard Triple Room <span style="font-size: 1rem; color: #666;">(3 pax - Wheelchair Accessible)</span></h3>
+                    <div class="room-price">RM189 - RM219 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Number: 11A (1 room available)</p>
+                    
+                    <div class="room-features">
+                        <div class="feature">
+                            <i class="fas fa-wheelchair"></i>
+                            <span>Wheelchair Accessible</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Queen Bed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Single Bed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tv"></i>
+                            <span>Smart TV</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-wifi"></i>
+                            <span>Free WiFi</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tint"></i>
+                            <span>Mineral Water</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-concierge-bell"></i>
+                            <span>Basic Toiletries</span>
+                        </div>
+                    </div>
+                    
+                    <p class="room-description">
+                        Specially designed wheelchair accessible triple room on the ground floor. Features one queen bed and one single bed, 
+                        with wider doorways and accessible bathroom facilities for guests with mobility needs.
+                    </p>
+                    
+                    <button class="book-button" data-room-type="wheelchair">Book This Room</button>
+                </div>
+            </div>
+            
+            <!-- STANDARD QUEEN WITH SOFABED (Upper Floor) - 2 rooms -->
+            <div class="room-card fade-in" id="standard-queen-sofabed">
+                <div class="room-image-slider-container">
+                    <div class="room-image-slider" id="queen-sofabed-slider">
+                        <div class="room-slide">
+                            <img src="images/queenbed.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/queenbed1'.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/queenbed2.png" class="room-slide-image">
+                        </div>
+                    </div>
+                    
+                    <div class="room-slider-controls">
+                        <button class="room-slider-prev" data-room="queen-sofabed">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="room-slider-dots" id="queen-sofabed-dots"></div>
+                        <button class="room-slider-next" data-room="queen-sofabed">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="image-counter">
+                        <span id="queen-sofabed-current-image">1</span> / <span id="queen-sofabed-total-images">3</span>
+                    </div>
+                </div>
+                
+                <div class="room-content">
+                    <h3 class="room-title">Standard Queen with Sofabed <span style="font-size: 1rem; color: #666;">(Upper Floor Only)</span></h3>
+                    <div class="room-price">RM159 - RM189 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Numbers: 88, 118 (2 rooms available)</p>
+                    
+                    <div class="room-features">
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Queen Bed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-couch"></i>
+                            <span>Sofabed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tv"></i>
+                            <span>Smart TV</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-wifi"></i>
+                            <span>Free WiFi</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tint"></i>
+                            <span>Mineral Water</span>
+                        </div>
+                    </div>
+                    
+                    <p class="room-description">
+                        Spacious standard queen room on the upper floor with an additional sofabed for extra comfort. 
+                        Perfect for small families or groups needing extra sleeping space.
+                    </p>
+                    
+                    <button class="book-button" data-room-type="queen-sofabed">Book This Room</button>
+                </div>
+            </div>
+            
+            <!-- STANDARD FAMILY ROOM (Ground Floor) - 4 pax -->
+            <div class="room-card fade-in" id="standard-family">
+                <div class="room-image-slider-container">
+                    <div class="room-image-slider" id="family-room-slider">
+                        <div class="room-slide">
+                            <img src="images/SF1.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF2.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF3.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF4.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF5.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF6.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF7.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF8.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF9.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SF10.png" class="room-slide-image">
+                        </div>
+                    </div>
+                    
+                    <div class="room-slider-controls">
+                        <button class="room-slider-prev" data-room="family">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="room-slider-dots" id="family-room-dots"></div>
+                        <button class="room-slider-next" data-room="family">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="image-counter">
+                        <span id="family-current-image">1</span> / <span id="family-total-images">10</span>
+                    </div>
+                </div>
+                
+                <div class="room-content">
+                    <h3 class="room-title">Standard Family Room <span style="font-size: 1rem; color: #666;">(4 pax - Ground Floor Only)</span></h3>
+                    <div class="room-price">RM189 - RM219 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Number: 8A (1 room available)</p>
+                    
+                    <div class="room-features">
+                        <div class="feature">
+                            <i class="fas fa-user-friends"></i>
+                            <span>4 pax</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Queen Bed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Pullout Bed (2 Single Beds)</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-city"></i>
+                            <span>City View</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tv"></i>
+                            <span>Smart TV</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-wifi"></i>
+                            <span>Free WiFi</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tint"></i>
+                            <span>Mineral Water</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-concierge-bell"></i>
+                            <span>Basic Toiletries</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-mug-hot"></i>
+                            <span>Kettle</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Iron Board</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-coffee"></i>
+                            <span>Coffee Table</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bath"></i>
+                            <span>Water Heater</span>
+                        </div>
+                    </div>
+                    
+                    <p class="room-description">
+                        Perfect for families or groups of up to 4 people, our Standard Family Room on the ground floor offers spacious 
+                        accommodation with one queen bed and one pullout bed (2 single beds). Enjoy the city view from your room, 
+                        stay entertained with a Smart TV, and relax with complimentary amenities including basic toiletries, 
+                        mineral water, coffee table, iron board, kettle, and water heater.
+                    </p>
+                    
+                    <button class="book-button" data-room-type="family">Book This Room</button>
+                </div>
+            </div>
+            
+            <!-- SEAVIEW QUEEN (Upper Floor) - 8 rooms -->
             <div class="room-card fade-in" id="seaview-queen">
                 <div class="room-image-slider-container">
                     <div class="room-image-slider" id="seaview-room-slider">
@@ -3031,6 +3396,7 @@
                 <div class="room-content">
                     <h3 class="room-title">Seaview Queen <span style="font-size: 1rem; color: #666;">(2 pax - Upper Floor Only)</span></h3>
                     <div class="room-price">RM169 - RM199 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Numbers: 1B, 2B, 4B, 5B, 12B, 13B, 14B, 15B (8 rooms available)</p>
                     
                     <div class="room-features">
                         <div class="feature">
@@ -3090,7 +3456,7 @@
                 </div>
             </div>
             
-            <!-- Seaview Triple (Ground Floor) -->
+            <!-- SEAVIEW TRIPLE (Ground Floor) - 5 rooms -->
             <div class="room-card fade-in" id="seaview-triple">
                 <div class="room-image-slider-container">
                     <div class="room-image-slider" id="triple-room-slider">
@@ -3132,6 +3498,7 @@
                 <div class="room-content">
                     <h3 class="room-title">Seaview Triple Room <span style="font-size: 1rem; color: #666;">(3 pax - Ground Floor Only)</span></h3>
                     <div class="room-price">RM219 - RM249 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Numbers: 4A, 12A, 2A, 13A, 15A (5 rooms available)</p>
                     
                     <div class="room-features">
                         <div class="feature">
@@ -3195,320 +3562,7 @@
                 </div>
             </div>
             
-            <!-- Standard Triple (Ground Floor) -->
-            <div class="room-card fade-in" id="standard-triple">
-                <div class="room-image-slider-container">
-                    <div class="room-image-slider" id="standard-room-slider">
-                        <div class="room-slide">
-                            <img src="images/STD1.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/STD2.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/STD3.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/STD4.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/STD5.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/STD6.png" class="room-slide-image">
-                        </div>
-                    </div>
-                    
-                    <div class="room-slider-controls">
-                        <button class="room-slider-prev" data-room="standard">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <div class="room-slider-dots" id="standard-room-dots"></div>
-                        <button class="room-slider-next" data-room="standard">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="image-counter">
-                        <span id="standard-current-image">1</span> / <span id="standard-total-images">6</span>
-                    </div>
-                </div>
-                
-                <div class="room-content">
-                    <h3 class="room-title">Standard Triple Room <span style="font-size: 1rem; color: #666;">(3 pax - Ground Floor Only)</span></h3>
-                    <div class="room-price">RM179 - RM209 <span>per night</span></div>
-                    
-                    <div class="room-features">
-                        <div class="feature">
-                            <i class="fas fa-bed"></i>
-                            <span>1 Queen Bed</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-bed"></i>
-                            <span>1 Single Bed</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-city"></i>
-                            <span>City View</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tv"></i>
-                            <span>Smart TV</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-wifi"></i>
-                            <span>Free WiFi</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tint"></i>
-                            <span>Mineral Water</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-concierge-bell"></i>
-                            <span>Basic Toiletries</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-mug-hot"></i>
-                            <span>Kettle</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Iron Board</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-coffee"></i>
-                            <span>Coffee Table</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-bath"></i>
-                            <span>Water Heater</span>
-                        </div>
-                    </div>
-                    
-                    <p class="room-description">
-                        Our Standard Triple Room on the ground floor is perfect for guests who need extra sleeping space
-                        at an affordable rate. Featuring one queen bed and one single bed, this room
-                        offers comfort and practicality with city view, Smart TV, basic toiletries, mineral water,
-                        coffee table, iron board, kettle, and water heater.
-                    </p>
-                    
-                    <button class="book-button" data-room-type="standard">Book This Room</button>
-                </div>
-            </div>
-
-            <!-- Standard Family Room (Ground Floor) -->
-            <div class="room-card fade-in" id="standard-family">
-                <div class="room-image-slider-container">
-                    <div class="room-image-slider" id="family-room-slider">
-                        <div class="room-slide">
-                            <img src="images/SF1.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF2.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF3.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF4.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF5.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF6.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF7.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF8.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF9.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SF10.png" class="room-slide-image">
-                        </div>
-                    </div>
-                    
-                    <div class="room-slider-controls">
-                        <button class="room-slider-prev" data-room="family">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <div class="room-slider-dots" id="family-room-dots"></div>
-                        <button class="room-slider-next" data-room="family">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="image-counter">
-                        <span id="family-current-image">1</span> / <span id="family-total-images">10</span>
-                    </div>
-                </div>
-                
-                <div class="room-content">
-                    <h3 class="room-title">Standard Family Room <span style="font-size: 1rem; color: #666;">(4 pax - Ground Floor Only)</span></h3>
-                    <div class="room-price">RM159 - RM219 <span>per night</span></div>
-                    
-                    <div class="room-features">
-                        <div class="feature">
-                            <i class="fas fa-user-friends"></i>
-                            <span>4 pax</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-bed"></i>
-                            <span>1 Queen Bed</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-bed"></i>
-                            <span>1 Pullout Bed (2 Single Beds)</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-city"></i>
-                            <span>City View</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tv"></i>
-                            <span>Smart TV</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-wifi"></i>
-                            <span>Free WiFi</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tint"></i>
-                            <span>Mineral Water</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-concierge-bell"></i>
-                            <span>Basic Toiletries</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-mug-hot"></i>
-                            <span>Kettle</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Iron Board</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-coffee"></i>
-                            <span>Coffee Table</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-bath"></i>
-                            <span>Water Heater</span>
-                        </div>
-                    </div>
-                    
-                    <p class="room-description">
-                        Perfect for families or groups of up to 4 people, our Standard Family Room on the ground floor offers spacious 
-                        accommodation with one queen bed and one pullout bed (2 single beds). Enjoy the city view from your room, 
-                        stay entertained with a Smart TV, and relax with complimentary amenities including basic toiletries, 
-                        mineral water, coffee table, iron board, kettle, and water heater.
-                    </p>
-                    
-                    <button class="book-button" data-room-type="family">Book This Room</button>
-                </div>
-            </div>
-
-            <!-- Superior Seaview Room (Ground Floor) -->
-            <div class="room-card fade-in" id="superior-seaview">
-                <div class="room-image-slider-container">
-                    <div class="room-image-slider" id="superior-room-slider">
-                        <div class="room-slide">
-                            <img src="images/SR1.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SR2.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SR3.png" class="room-slide-image">
-                        </div>
-                        <div class="room-slide">
-                            <img src="images/SR4.png" class="room-slide-image">
-                        </div>
-                    </div>
-                    
-                    <div class="room-slider-controls">
-                        <button class="room-slider-prev" data-room="superior">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <div class="room-slider-dots" id="superior-room-dots"></div>
-                        <button class="room-slider-next" data-room="superior">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="image-counter">
-                        <span id="superior-current-image">1</span> / <span id="superior-total-images">4</span>
-                    </div>
-                </div>
-                
-                <div class="room-content">
-                    <h3 class="room-title">SUPERIOR SEAVIEW ROOM <span style="font-size: 1rem; color: #666;">(2 pax - Ground Floor Only)</span></h3>
-                    <div class="room-price">RM184 - RM214 <span>per night</span></div>
-                    
-                    <div class="room-features">
-                        <div class="feature">
-                            <i class="fas fa-bed"></i>
-                            <span>1 Queen Bed</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tv"></i>
-                            <span>Smart TV with Netflix</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-wifi"></i>
-                            <span>Free WiFi</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tint"></i>
-                            <span>Mineral Water</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-concierge-bell"></i>
-                            <span>Basic Toiletries</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-mug-hot"></i>
-                            <span>Kettle</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-tshirt"></i>
-                            <span>Iron Board</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-coffee"></i>
-                            <span>Coffee Table</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-bath"></i>
-                            <span>Water Heater</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-water"></i>
-                            <span>Sea View</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-snowflake"></i>
-                            <span>Mini Refrigerator</span>
-                        </div>
-                    </div>
-                    
-                    <p class="room-description">
-                        Experience premium comfort in our Superior Seaview Room on the ground floor, featuring a comfortable queen bed 
-                        and breathtaking sea views. Enjoy modern amenities including Smart TV with Netflix, WiFi, and convenient 
-                        facilities like a mini refrigerator. Complete with basic toiletries, mineral water, coffee table, iron board, 
-                        kettle, and water heater for a relaxing stay by the sea.
-                    </p>
-                    
-                    <button class="book-button" data-room-type="superior">Book This Room</button>
-                </div>
-            </div>
-            
-            <!-- Seaview Family Room (Ground Floor) -->
+            <!-- SEAVIEW FAMILY ROOM (Ground Floor) - 4 pax -->
             <div class="room-card fade-in" id="seaview-family">
                 <div class="room-image-slider-container">
                     <div class="room-image-slider" id="seaview-family-slider">
@@ -3562,6 +3616,7 @@
                 <div class="room-content">
                     <h3 class="room-title">Seaview Family Room <span style="font-size: 1rem; color: #666;">(4 pax - Ground Floor Only)</span></h3>
                     <div class="room-price">RM249 - RM279 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Number: 1A (1 room available)</p>
                     
                     <div class="room-features">
                         <div class="feature">
@@ -3622,6 +3677,102 @@
                     </p>
                     
                     <button class="book-button" data-room-type="seaview-family">Book This Room</button>
+                </div>
+            </div>
+            
+            <!-- SUPERIOR SEAVIEW ROOM (Ground Floor) - 2 pax -->
+            <div class="room-card fade-in" id="superior-seaview">
+                <div class="room-image-slider-container">
+                    <div class="room-image-slider" id="superior-room-slider">
+                        <div class="room-slide">
+                            <img src="images/SR1.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SR2.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SR3.png" class="room-slide-image">
+                        </div>
+                        <div class="room-slide">
+                            <img src="images/SR4.png" class="room-slide-image">
+                        </div>
+                    </div>
+                    
+                    <div class="room-slider-controls">
+                        <button class="room-slider-prev" data-room="superior">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="room-slider-dots" id="superior-room-dots"></div>
+                        <button class="room-slider-next" data-room="superior">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="image-counter">
+                        <span id="superior-current-image">1</span> / <span id="superior-total-images">4</span>
+                    </div>
+                </div>
+                
+                <div class="room-content">
+                    <h3 class="room-title">SUPERIOR SEAVIEW ROOM <span style="font-size: 1rem; color: #666;">(2 pax - Ground Floor Only)</span></h3>
+                    <div class="room-price">RM184 - RM214 <span>per night</span></div>
+                    <p class="room-description" style="font-size: 0.9rem; color: #888; margin-top: -10px;">Room Number: 5A (1 room available)</p>
+                    
+                    <div class="room-features">
+                        <div class="feature">
+                            <i class="fas fa-bed"></i>
+                            <span>1 Queen Bed</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tv"></i>
+                            <span>Smart TV with Netflix</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-wifi"></i>
+                            <span>Free WiFi</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tint"></i>
+                            <span>Mineral Water</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-concierge-bell"></i>
+                            <span>Basic Toiletries</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-mug-hot"></i>
+                            <span>Kettle</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Iron Board</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-coffee"></i>
+                            <span>Coffee Table</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-bath"></i>
+                            <span>Water Heater</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-water"></i>
+                            <span>Sea View</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-snowflake"></i>
+                            <span>Mini Refrigerator</span>
+                        </div>
+                    </div>
+                    
+                    <p class="room-description">
+                        Experience premium comfort in our Superior Seaview Room on the ground floor, featuring a comfortable queen bed 
+                        and breathtaking sea views. Enjoy modern amenities including Smart TV with Netflix, WiFi, and convenient 
+                        facilities like a mini refrigerator. Complete with basic toiletries, mineral water, coffee table, iron board, 
+                        kettle, and water heater for a relaxing stay by the sea.
+                    </p>
+                    
+                    <button class="book-button" data-room-type="superior">Book This Room</button>
                 </div>
             </div>
         </div>
@@ -3918,13 +4069,15 @@
                 <h3>Quick Links</h3>
                 <ul class="footer-links">
                     <li><a href="#">Home</a></li>
-                    <li><a href="#queen-room">Standard Queen Room (Upper Floor)</a></li>
-                    <li><a href="#seaview-queen">Seaview Queen (Upper Floor)</a></li>
-                    <li><a href="#seaview-triple">Seaview Triple (Ground Floor)</a></li>
-                    <li><a href="#standard-triple">Standard Triple (Ground Floor)</a></li>
-                    <li><a href="#standard-family">Standard Family (Ground Floor)</a></li>
-                    <li><a href="#superior-seaview">Superior Seaview (Ground Floor)</a></li>
-                    <li><a href="#seaview-family">Seaview Family (Ground Floor)</a></li>
+                    <li><a href="#standard-queen">Standard Queen Room (Upper Floor) - RM129-159</a></li>
+                    <li><a href="#standard-triple">Standard Triple (Ground Floor) - RM179-209</a></li>
+                    <li><a href="#standard-triple-wheelchair">Standard Triple Wheelchair Accessible - RM189-219</a></li>
+                    <li><a href="#standard-queen-sofabed">Standard Queen with Sofabed - RM159-189</a></li>
+                    <li><a href="#standard-family">Standard Family (Ground Floor) - RM189-219</a></li>
+                    <li><a href="#seaview-queen">Seaview Queen (Upper Floor) - RM169-199</a></li>
+                    <li><a href="#seaview-triple">Seaview Triple (Ground Floor) - RM219-249</a></li>
+                    <li><a href="#seaview-family">Seaview Family (Ground Floor) - RM249-279</a></li>
+                    <li><a href="#superior-seaview">Superior Seaview (Ground Floor) - RM184-214</a></li>
                 </ul>
             </div>
             
@@ -3995,13 +4148,15 @@
                     <label for="room-type">Room Type</label>
                     <select id="room-type" required>
                         <option value="">Select a room</option>
-                        <option value="queen">Standard Queen Room (Upper Floor) - RM129-159/night (2pax)</option>
-                        <option value="seaview">Seaview Queen (Upper Floor) - RM169-199/night (2pax)</option>
-                        <option value="triple">Seaview Triple Room (Ground Floor) - RM219-249/night (3pax)</option>
-                        <option value="standard">Standard Triple Room (Ground Floor) - RM179-209/night (3pax)</option>
-                        <option value="family">Standard Family Room (Ground Floor) - RM159-219/night (4pax)</option>
-                        <option value="superior">Superior Seaview Room (Ground Floor) - RM184-214/night (2pax)</option>
-                        <option value="seaview-family">Seaview Family Room (Ground Floor) - RM249-279/night (4pax)</option>
+                        <option value="queen">Standard Queen Room (Upper Floor) - 5 rooms (3B,6B,7B,9B,10B) - RM129-159/night (2pax)</option>
+                        <option value="standard">Standard Triple Room (Ground Floor) - 4 rooms (6A,7A,9A,10A) - RM179-209/night (3pax)</option>
+                        <option value="wheelchair">Standard Triple Wheelchair Accessible - 1 room (11A) - RM189-219/night (3pax)</option>
+                        <option value="queen-sofabed">Standard Queen with Sofabed (Upper Floor) - 2 rooms (88,118) - RM159-189/night</option>
+                        <option value="family">Standard Family Room (Ground Floor) - 1 room (8A) - RM189-219/night (4pax)</option>
+                        <option value="seaview">Seaview Queen (Upper Floor) - 8 rooms (1B,2B,4B,5B,12B,13B,14B,15B) - RM169-199/night (2pax)</option>
+                        <option value="triple">Seaview Triple Room (Ground Floor) - 5 rooms (4A,12A,2A,13A,15A) - RM219-249/night (3pax)</option>
+                        <option value="seaview-family">Seaview Family Room (Ground Floor) - 1 room (1A) - RM249-279/night (4pax)</option>
+                        <option value="superior">Superior Seaview Room (Ground Floor) - 1 room (5A) - RM184-214/night (2pax)</option>
                     </select>
                     <div class="error-message" id="room-type-error">Please select a room type</div>
                 </div>
@@ -4156,6 +4311,12 @@
                             <i class="fas fa-qrcode"></i> DuitNow QR – Scan & Pay
                         </label>
                     </div>
+                    <div class="payment-method" id="method-billplz">
+                        <input type="radio" name="paymentMethod" id="billplzPay" value="Billplz (Online Banking)">
+                        <label for="billplzPay">
+                            <i class="fas fa-university"></i> Billplz – Online Banking (FPX)
+                        </label>
+                    </div>
                     <div class="payment-due">
                         <p><i class="fas fa-clock"></i> Full payment required to confirm booking.</p>
                         <p style="margin-top: 0.8rem;"><strong>Amount due:</strong> <span id="payment-due-amount" style="font-size: 1.8rem; color: #1e1e1e; font-weight: 700;">RM0.00</span></p>
@@ -4276,80 +4437,66 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const functions = firebase.functions();
 
         // ==============================================
-        // UPDATED ROOM PRICES - WITH HOLIDAY RATES
+        // UPDATED ROOM PRICES - BASED ON IMAGE
         // ==============================================
         
-        // Room prices with normal and holiday rates (based on your notes)
+        // Room prices with normal and holiday rates (based on image)
         const roomPrices = { 
             'queen': { normal: 129, holiday: 159 },           // Standard Queen (Upper Floor)
+            'standard': { normal: 179, holiday: 209 },        // Standard Triple (Ground Floor)
+            'wheelchair': { normal: 189, holiday: 219 },      // Standard Triple Wheelchair Accessible
+            'queen-sofabed': { normal: 159, holiday: 189 },   // Standard Queen with Sofabed (Upper Floor)
+            'family': { normal: 189, holiday: 219 },          // Standard Family (Ground Floor)
             'seaview': { normal: 169, holiday: 199 },         // Seaview Queen (Upper Floor)
             'triple': { normal: 219, holiday: 249 },          // Seaview Triple (Ground Floor)
-            'standard': { normal: 179, holiday: 209 },        // Standard Triple (Ground Floor)
-            'family': { normal: 159, holiday: 219 },          // Standard Family (Ground Floor)
-            'superior': { normal: 184, holiday: 214 },        // Superior Seaview (Ground Floor)
-            'seaview-family': { normal: 249, holiday: 279 }   // Seaview Family (Ground Floor)
+            'seaview-family': { normal: 249, holiday: 279 },  // Seaview Family (Ground Floor)
+            'superior': { normal: 184, holiday: 214 }         // Superior Seaview (Ground Floor)
         };
 
         // Room names for display
         const roomNames = { 
-            'queen': 'Standard Queen Room (Upper Floor)',
-            'seaview': 'Seaview Queen (Upper Floor)',
-            'triple': 'Seaview Triple Room (Ground Floor)',
-            'standard': 'Standard Triple Room (Ground Floor)',
-            'family': 'Standard Family Room (Ground Floor)',
-            'superior': 'Superior Seaview Room (Ground Floor)',
-            'seaview-family': 'Seaview Family Room (Ground Floor)'
+            'queen': 'Standard Queen Room (Upper Floor) - 5 rooms (3B,6B,7B,9B,10B)',
+            'standard': 'Standard Triple Room (Ground Floor) - 4 rooms (6A,7A,9A,10A)',
+            'wheelchair': 'Standard Triple Wheelchair Accessible (Ground Floor) - 1 room (11A)',
+            'queen-sofabed': 'Standard Queen with Sofabed (Upper Floor) - 2 rooms (88,118)',
+            'family': 'Standard Family Room (Ground Floor) - 1 room (8A)',
+            'seaview': 'Seaview Queen (Upper Floor) - 8 rooms (1B,2B,4B,5B,12B,13B,14B,15B)',
+            'triple': 'Seaview Triple Room (Ground Floor) - 5 rooms (4A,12A,2A,13A,15A)',
+            'seaview-family': 'Seaview Family Room (Ground Floor) - 1 room (1A)',
+            'superior': 'Superior Seaview Room (Ground Floor) - 1 room (5A)'
         };
 
         // Function to check if a date falls during school holiday or public holiday
         function isHoliday(date) {
             const year = date.getFullYear();
-            const month = date.getMonth() + 1; // 1-12
+            const month = date.getMonth() + 1;
             const day = date.getDate();
             
-            // Format date as YYYY-MM-DD for comparison
             const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             
-            // MALAYSIA SCHOOL HOLIDAYS 2025-2026 (update these with actual dates)
             const holidayPeriods = [
-                // Group A (Johor, Kedah, Kelantan, Terengganu) & Group B (other states)
-                // End of School Year 2025
                 { start: '2025-12-12', end: '2026-01-11' },
-                // Chinese New Year 2026
                 { start: '2026-02-15', end: '2026-02-18' },
-                // Mid-Term Break 2026
                 { start: '2026-03-13', end: '2026-03-22' },
-                // Hari Raya Aidilfitri 2026
                 { start: '2026-04-10', end: '2026-04-20' },
-                // Mid-Year Break 2026
                 { start: '2026-05-29', end: '2026-06-14' },
-                // Hari Raya Haji 2026
                 { start: '2026-07-10', end: '2026-07-12' },
-                // Mid-Term Break 2026
                 { start: '2026-08-28', end: '2026-09-06' },
-                // Year-End Break 2026
                 { start: '2026-12-18', end: '2027-01-03' }
             ];
             
-            // Check if date falls within any holiday period
             for (let period of holidayPeriods) {
                 if (dateStr >= period.start && dateStr <= period.end) {
                     return true;
                 }
             }
             
-            // PUBLIC HOLIDAYS (add as needed)
             const publicHolidays = [
-                `${year}-01-01`, // New Year
-                `${year}-02-01`, // Federal Territory Day
-                `${year}-05-01`, // Labour Day
-                `${year}-06-03`, // Agong's Birthday
-                `${year}-08-31`, // Merdeka Day
-                `${year}-09-16`, // Malaysia Day
-                `${year}-12-25`, // Christmas
-                // Add more specific public holidays
+                `${year}-01-01`, `${year}-02-01`, `${year}-05-01`,
+                `${year}-06-03`, `${year}-08-31`, `${year}-09-16`, `${year}-12-25`
             ];
             
             if (publicHolidays.includes(dateStr)) {
@@ -4361,7 +4508,6 @@
 
         // Function to check if any night of stay falls during holiday
         function isAnyNightHoliday(checkInDate, checkOutDate) {
-            // Loop through each night of stay
             for (let d = new Date(checkInDate); d < checkOutDate; d.setDate(d.getDate() + 1)) {
                 if (isHoliday(d)) {
                     return true;
@@ -4373,33 +4519,26 @@
         // Function to check room availability in Firebase
         async function checkRoomAvailability(checkInDate, checkOutDate, roomType) {
             try {
-                // Query Firestore for bookings that overlap with the requested dates
                 const bookingsRef = db.collection('bookings');
                 
-                // Get bookings with status not cancelled/rejected that overlap with the date range
                 const snapshot = await bookingsRef
                     .where('roomType', '==', roomType)
-                    .where('status', 'in', ['pending', 'confirmed']) // Consider both pending and confirmed as booked
+                    .where('status', 'in', ['pending', 'confirmed'])
                     .get();
                 
-                // If no bookings at all, room is available
                 if (snapshot.empty) {
                     return { available: true };
                 }
                 
-                // Convert check-in and check-out to Date objects for comparison
                 const checkIn = new Date(checkInDate);
                 const checkOut = new Date(checkOutDate);
                 
-                // Check for overlapping bookings
                 let isOverlapping = false;
                 snapshot.forEach(doc => {
                     const booking = doc.data();
                     const bookingCheckIn = new Date(booking.checkIn);
                     const bookingCheckOut = new Date(booking.checkOut);
                     
-                    // Check for any date overlap
-                    // Overlap occurs if: (StartA < EndB) and (EndA > StartB)
                     if (checkIn < bookingCheckOut && checkOut > bookingCheckIn) {
                         isOverlapping = true;
                     }
@@ -4525,7 +4664,7 @@
                 init() {
                     this.currentImageSpan = document.getElementById(`${this.roomType}-current-image`);
                     this.totalImagesSpan = document.getElementById(`${this.roomType}-total-images`);
-                    this.dotsContainer = document.getElementById(`${this.roomType}-room-dots`);
+                    this.dotsContainer = document.getElementById(`${this.roomType}-dots`);
                     this.nextBtn = document.querySelector(`.room-slider-next[data-room="${this.roomType}"]`);
                     this.prevBtn = document.querySelector(`.room-slider-prev[data-room="${this.roomType}"]`);
                     if (this.totalImagesSpan) this.totalImagesSpan.textContent = this.totalSlides;
@@ -4583,7 +4722,7 @@
                     }
                 }
             }
-            const roomTypes = ['queen', 'seaview', 'triple', 'standard', 'family', 'superior', 'seaview-family'];
+            const roomTypes = ['queen', 'standard-triple', 'wheelchair', 'queen-sofabed', 'family', 'seaview', 'triple', 'seaview-family', 'superior'];
             roomTypes.forEach(roomType => new RoomSlider(roomType));
             
             // Initialize Map
@@ -4925,14 +5064,12 @@
                     const availability = await checkRoomAvailability(checkIn, checkOut, roomType);
                     
                     if (!availability.available) {
-                        // Room not available
                         availabilityStatus.className = 'availability-status unavailable';
                         availabilityMessage.textContent = availability.message || "This room is not available for the selected dates.";
                         availabilityStatus.style.display = 'flex';
                         document.getElementById('step-1-next').disabled = false;
                         return false;
                     } else {
-                        // Room available
                         availabilityStatus.className = 'availability-status available';
                         availabilityMessage.textContent = "✓ Room is available for the selected dates!";
                         availabilityStatus.style.display = 'flex';
@@ -4947,10 +5084,8 @@
                         const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
                         bookingData.nights = nights;
                         
-                        // Check if any night falls during holiday period
                         const useHolidayRate = isAnyNightHoliday(checkInDate, checkOutDate);
                         
-                        // Get price based on holiday detection
                         const roomPriceData = roomPrices[roomType];
                         bookingData.pricePerNight = useHolidayRate ? roomPriceData.holiday : roomPriceData.normal;
                         bookingData.totalPrice = bookingData.pricePerNight * nights;
@@ -4965,7 +5100,6 @@
             }
             
             function updateBookingSummary() {
-                // Add rate type indicator
                 const rateType = bookingData.usedHolidayRate ? '(Holiday Rate)' : '(Normal Rate)';
                 
                 document.getElementById('summary-room').textContent = `${roomNames[bookingData.roomType] || bookingData.roomType} ${rateType}`;
@@ -5011,19 +5145,63 @@
                 }
             }
             
+            // ==============================================
+            // BILLPLZ PAYMENT FUNCTIONS
+            // ==============================================
+            
+            async function processBillplzPayment() {
+                try {
+                    const whatsappBtn = document.getElementById('whatsapp-payment-btn');
+                    const originalText = whatsappBtn.innerHTML;
+                    whatsappBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating payment...';
+                    whatsappBtn.disabled = true;
+                    
+                    const createBillplzBill = functions.httpsCallable('createBillplzBill');
+                    
+                    const result = await createBillplzBill({
+                        bookingId: bookingData.bookingId,
+                        totalAmount: bookingData.totalPrice,
+                        name: bookingData.name,
+                        email: bookingData.email,
+                        roomType: bookingData.roomType,
+                        nights: bookingData.nights
+                    });
+                    
+                    if (result.data.success) {
+                        window.location.href = result.data.billUrl;
+                    } else {
+                        throw new Error(result.data.error || 'Failed to create payment');
+                    }
+                } catch (error) {
+                    console.error('Billplz payment error:', error);
+                    alert('Failed to create payment. Please try again or contact admin.\n\nError: ' + (error.message || 'Unknown error'));
+                    
+                    const whatsappBtn = document.getElementById('whatsapp-payment-btn');
+                    whatsappBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Send Booking & Payment Proof to Admin';
+                    whatsappBtn.disabled = false;
+                    whatsappBtn.classList.remove('disabled');
+                }
+            }
+            
             async function processPaymentAndSendToWhatsApp() {
-                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-                bookingData.paymentMethod = paymentMethod ? paymentMethod.value : 'QR Pay (DuitNow)';
+                const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+                const paymentMethodValue = selectedPaymentMethod ? selectedPaymentMethod.value : 'QR Pay (DuitNow)';
+                
+                bookingData.paymentMethod = paymentMethodValue;
                 bookingData.bookingId = generateBookingId();
-                const message = prepareWhatsAppMessage();
-                const adminPhone = "60129097591";
-                
-                const cleanPhone = adminPhone.replace(/[+\s]/g, '');
-                
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
                 
                 await saveBookingToFirebase();
+                
+                if (paymentMethodValue === 'Billplz (Online Banking)') {
+                    await processBillplzPayment();
+                    return;
+                }
+                
+                const message = prepareWhatsAppMessage();
+                const adminPhone = "60129097591";
+                const cleanPhone = adminPhone.replace(/[+\s]/g, '');
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
                 
                 populateConfirmation();
                 
@@ -5047,6 +5225,17 @@
                 }
                 
                 showStep(4);
+            }
+            
+            function checkPaymentStatus() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const bookingId = urlParams.get('bookingId');
+                const paymentStatus = urlParams.get('payment_status');
+                
+                if (bookingId && (paymentStatus === 'success' || paymentStatus === 'callback')) {
+                    localStorage.setItem('billplz_success_booking', bookingId);
+                    window.location.href = 'payment-success.html?bookingId=' + bookingId;
+                }
             }
             
             function prepareWhatsAppMessage() {
@@ -5144,17 +5333,14 @@
                 document.getElementById('check-out').min = nextDay.toISOString().split('T')[0];
                 const checkOutInput = document.getElementById('check-out');
                 if (checkOutInput.value && new Date(checkOutInput.value) < nextDay) { checkOutInput.value = ''; }
-                // Hide availability status when dates change
                 availabilityStatus.style.display = 'none';
             });
             
             document.getElementById('check-out').addEventListener('change', function() {
-                // Hide availability status when dates change
                 availabilityStatus.style.display = 'none';
             });
             
             document.getElementById('room-type').addEventListener('change', function() {
-                // Hide availability status when room type changes
                 availabilityStatus.style.display = 'none';
             });
             
@@ -5169,6 +5355,8 @@
                 const date = new Date(dateString);
                 return date.toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
             }
+            
+            checkPaymentStatus();
             
             const fadeElements = document.querySelectorAll('.fade-in');
             const fadeInOnScroll = function() {
