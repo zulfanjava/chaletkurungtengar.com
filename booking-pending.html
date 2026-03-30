@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Pending - Chalet Kurung Tengar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .pending-container {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            margin: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .pending-icon {
+            font-size: 5rem;
+            color: #ff9800;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #333;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background-color: #555;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="pending-container">
+        <div class="pending-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <h1>Payment Received!</h1>
+        <p>We've received your payment. Our admin will verify and confirm your booking shortly.</p>
+        <p>You will receive a confirmation email within 15-30 minutes.</p>
+        <p style="font-size: 0.9rem; color: #999;">
+            <i class="fas fa-phone-alt"></i> Need assistance? Call us at +60 12-909 7591
+        </p>
+        <a href="index.html" class="btn">
+            <i class="fas fa-home"></i> Return to Homepage
+        </a>
+    </div>
+</body>
+</html>
