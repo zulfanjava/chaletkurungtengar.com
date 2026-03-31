@@ -4311,7 +4311,7 @@
                             <i class="fas fa-qrcode"></i> DuitNow QR – Scan & Pay
                         </label>
                     </div>
-                    <div class="payment-method" id="method-billplz">
+                    <div class="payment-method" id="method-billplz" style="display: none;">
                         <input type="radio" name="paymentMethod" id="billplzPay" value="Billplz (Online Banking)">
                         <label for="billplzPay">
                             <i class="fas fa-university"></i> Billplz – Online Banking (FPX)
@@ -5146,42 +5146,8 @@
             }
             
             // ==============================================
-            // BILLPLZ PAYMENT FUNCTIONS
+            // BILLPLZ PAYMENT FUNCTIONS (hidden - kept for future but not active)
             // ==============================================
-            
-            async function processBillplzPayment() {
-                try {
-                    const whatsappBtn = document.getElementById('whatsapp-payment-btn');
-                    const originalText = whatsappBtn.innerHTML;
-                    whatsappBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating payment...';
-                    whatsappBtn.disabled = true;
-                    
-                    const createBillplzBill = functions.httpsCallable('createBillplzBill');
-                    
-                    const result = await createBillplzBill({
-                        bookingId: bookingData.bookingId,
-                        totalAmount: bookingData.totalPrice,
-                        name: bookingData.name,
-                        email: bookingData.email,
-                        roomType: bookingData.roomType,
-                        nights: bookingData.nights
-                    });
-                    
-                    if (result.data.success) {
-                        window.location.href = result.data.billUrl;
-                    } else {
-                        throw new Error(result.data.error || 'Failed to create payment');
-                    }
-                } catch (error) {
-                    console.error('Billplz payment error:', error);
-                    alert('Failed to create payment. Please try again or contact admin.\n\nError: ' + (error.message || 'Unknown error'));
-                    
-                    const whatsappBtn = document.getElementById('whatsapp-payment-btn');
-                    whatsappBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Send Booking & Payment Proof to Admin';
-                    whatsappBtn.disabled = false;
-                    whatsappBtn.classList.remove('disabled');
-                }
-            }
             
             async function processPaymentAndSendToWhatsApp() {
                 const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
@@ -5191,11 +5157,6 @@
                 bookingData.bookingId = generateBookingId();
                 
                 await saveBookingToFirebase();
-                
-                if (paymentMethodValue === 'Billplz (Online Banking)') {
-                    await processBillplzPayment();
-                    return;
-                }
                 
                 const message = prepareWhatsAppMessage();
                 const adminPhone = "60129097591";
@@ -5225,17 +5186,6 @@
                 }
                 
                 showStep(4);
-            }
-            
-            function checkPaymentStatus() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const bookingId = urlParams.get('bookingId');
-                const paymentStatus = urlParams.get('payment_status');
-                
-                if (bookingId && (paymentStatus === 'success' || paymentStatus === 'callback')) {
-                    localStorage.setItem('billplz_success_booking', bookingId);
-                    window.location.href = 'payment-success.html?bookingId=' + bookingId;
-                }
             }
             
             function prepareWhatsAppMessage() {
@@ -5356,8 +5306,6 @@
                 return date.toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
             }
             
-            checkPaymentStatus();
-            
             const fadeElements = document.querySelectorAll('.fade-in');
             const fadeInOnScroll = function() {
                 fadeElements.forEach(element => {
@@ -5406,14 +5354,17 @@
                 });
             });
             
-            document.querySelector('.newsletter-input button').addEventListener('click', function(e) {
-                e.preventDefault();
-                const emailInput = document.querySelector('.newsletter-input input');
-                if (emailInput.value) {
-                    alert(`Thank you for subscribing with email: ${emailInput.value}`);
-                    emailInput.value = '';
-                }
-            });
+            const newsletterBtn = document.querySelector('.newsletter-input button');
+            if (newsletterBtn) {
+                newsletterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const emailInput = document.querySelector('.newsletter-input input');
+                    if (emailInput.value) {
+                        alert(`Thank you for subscribing with email: ${emailInput.value}`);
+                        emailInput.value = '';
+                    }
+                });
+            }
         });
     </script>
 </body>
