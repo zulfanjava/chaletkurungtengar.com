@@ -5088,7 +5088,9 @@
                 processPaymentAndSendToWhatsApp();
             });
             
-            // Handle Billplz payment - INSIDE DOMContentLoaded so it can access bookingData
+            // ==============================================
+            // UPDATED BILLPLZ HANDLER - WORKS ON ALL BROWSERS (Safari, iOS, Android, Chrome)
+            // ==============================================
             if (billplzBtn) {
                 billplzBtn.addEventListener('click', async function() {
                     console.log('Billplz button clicked');
@@ -5151,18 +5153,55 @@
                             bookingData.paymentMethod = 'Billplz (Online Banking)';
                             await saveBookingToFirebase();
                             
-                            // Open Billplz payment page in new tab
-                            window.open(result.data.billUrl, '_blank');
+                            // Store booking info for recovery
+                            sessionStorage.setItem('pendingBookingId', bookingData.bookingId);
+                            sessionStorage.setItem('pendingAmount', bookingData.totalPrice);
                             
-                            // Show success message
-                            alert(`Payment link opened in new tab.\n\nBooking ID: ${bookingData.bookingId}\nAmount: RM ${bookingData.totalPrice.toFixed(2)}\n\nPlease complete the payment to confirm your booking.`);
+                            // Detect browser type for proper handling
+                            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                            
+                            // Show confirmation dialog with booking details
+                            const paymentUrl = result.data.billUrl;
+                            const confirmMessage = `Booking Created!\n\nBooking ID: ${bookingData.bookingId}\nAmount: RM ${bookingData.totalPrice.toFixed(2)}\n\nClick OK to proceed to payment page.`;
+                            
+                            const userConfirmed = confirm(confirmMessage);
+                            
+                            if (userConfirmed) {
+                                // For Safari/iOS/mobile - use redirect (most reliable)
+                                if (isIOS || isSafari || isMobile) {
+                                    window.location.href = paymentUrl;
+                                } else {
+                                    // For Chrome/desktop - try popup with fallback
+                                    const paymentWindow = window.open(paymentUrl, '_blank');
+                                    
+                                    if (!paymentWindow || paymentWindow.closed || typeof paymentWindow.closed === 'undefined') {
+                                        // Popup blocked - ask user to allow or redirect
+                                        const useRedirect = confirm(
+                                            `Pop-up blocked!\n\nPlease allow pop-ups for this site or click OK to go to payment page directly.`
+                                        );
+                                        if (useRedirect) {
+                                            window.location.href = paymentUrl;
+                                        } else {
+                                            // Copy link to clipboard as fallback
+                                            await navigator.clipboard.writeText(paymentUrl);
+                                            alert(`Payment link copied to clipboard!\n\n${paymentUrl}\n\nPlease paste it in your browser to complete payment.`);
+                                        }
+                                    }
+                                }
+                            } else {
+                                // User cancelled - show link for manual completion
+                                alert(`Your booking (${bookingData.bookingId}) is saved.\n\nComplete payment using this link:\n${paymentUrl}\n\nYou can also find this booking in your email.`);
+                            }
                             
                             // Close modal
                             bookingModal.style.display = 'none';
                             document.body.style.overflow = 'auto';
                             
-                            // Reset form
+                            // Reset form for next booking
                             resetBookingForm();
+                            
                         } else {
                             throw new Error(result.data.error || 'Failed to create payment bill');
                         }
