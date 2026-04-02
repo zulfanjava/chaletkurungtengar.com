@@ -1,55 +1,79 @@
 const { onCall, onRequest } = require('firebase-functions/v2/https');
-const { defineString, defineSecret, defineBoolean } = require('firebase-functions/params');
+const { defineString, defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const axios = require('axios');
 const crypto = require('crypto');
 
 admin.initializeApp();
 
-// Define parameters - ADD X_SIGNATURE SECRET
-const BILLPLZ_API_KEY = defineSecret('BILLPLZ_API_KEY');
-const BILLPLZ_X_SIGNATURE = defineSecret('BILLPLZ_X_SIGNATURE');  // ← MUST BE SET
+// ==============================================
+// PARAMETERS (from .env files)
+// ==============================================
 const BILLPLZ_COLLECTION_ID = defineString('BILLPLZ_COLLECTION_ID');
-const BILLPLZ_SANDBOX = defineBoolean('BILLPLZ_SANDBOX', { default: true });
+const BILLPLZ_SANDBOX = defineString('BILLPLZ_SANDBOX', { default: 'false' });
 const APP_URL = defineString('APP_URL', { default: 'https://chaletkurungtengar.com' });
 
-function getBillplzBaseUrl() {
-    return BILLPLZ_SANDBOX.value() 
+// ==============================================
+// SECRETS (from Secret Manager)
+// ==============================================
+const BILLPLZ_API_KEY = defineSecret('BILLPLZ_API_KEY');
+const BILLPLZ_X_SIGNATURE = defineSecret('BILLPLZ_X_SIGNATURE');
+
+function getBillplzBaseUrl(sandbox) {
+    return sandbox === 'true' 
         ? 'https://www.billplz-sandbox.com/api/v3' 
         : 'https://www.billplz.com/api/v3';
 }
 
-// Create Billplz Bill - Callable Function
+// Helper to get config values at runtime
+async function getConfig() {
+    return {
+        appUrl: APP_URL.value(),
+        billplzCollectionId: BILLPLZ_COLLECTION_ID.value(),
+        billplzSandbox: BILLPLZ_SANDBOX.value(),
+        billplzApiKey: await BILLPLZ_API_KEY.value(),
+        billplzXSignature: await BILLPLZ_X_SIGNATURE.value()
+    };
+}
+
+// ==============================================
+// CREATE BILLPLZ BILL - Callable Function
+// ==============================================
 exports.createBillplzBill = onCall(
     { secrets: [BILLPLZ_API_KEY] },
     async (request) => {
         const { bookingId, totalAmount, name, email, roomType, nights } = request.data;
         
         try {
-            console.log('Creating bill for:', { bookingId, totalAmount, email, roomType });
+            const config = await getConfig();
+            
+            console.log('Creating bill for:', { bookingId, totalAmount, email, roomType, nights });
+            console.log('Using collection ID:', config.billplzCollectionId);
+            console.log('Sandbox mode:', config.billplzSandbox);
             
             const amountInCents = Math.round(totalAmount * 100);
             
             const billData = {
-                collection_id: BILLPLZ_COLLECTION_ID.value(),
+                collection_id: config.billplzCollectionId,
                 email: email,
                 name: name,
                 amount: amountInCents,
                 description: `Chalet Kurung Tengar - ${roomType} for ${nights} nights (${bookingId})`,
                 reference_1: bookingId,
                 reference_2: roomType,
-                callback_url: `${APP_URL.value()}/billplz-callback`,  // ← FIXED: removed /api/
-                redirect_url: `${APP_URL.value()}/payment-successful.html?bookingId=${bookingId}`,
+                callback_url: `https://us-central1-chalet-kurung-tengar.cloudfunctions.net/billplzCallback`,
+                redirect_url: `${config.appUrl}/payment-successful.html?bookingId=${bookingId}`,
+                deliver: false,
+                // Production payment methods - FPX for Malaysian banks
+                payment_methods: ['fpx']
             };
             
-            console.log('Billplz request:', { url: `${getBillplzBaseUrl()}/bills`, billData });
-            
             const response = await axios.post(
-                `${getBillplzBaseUrl()}/bills`,
+                `${getBillplzBaseUrl(config.billplzSandbox)}/bills`,
                 billData,
                 {
                     auth: {
-                        username: BILLPLZ_API_KEY.value(),
+                        username: config.billplzApiKey,
                         password: ''
                     },
                     headers: {
@@ -75,7 +99,7 @@ exports.createBillplzBill = onCall(
                 guestName: name
             });
             
-            // Update booking - FIX: Use bookingId field directly
+            // Update booking if exists
             const bookingQuery = await admin.firestore()
                 .collection('bookings')
                 .where('bookingId', '==', bookingId)
@@ -90,8 +114,6 @@ exports.createBillplzBill = onCall(
                     billplzBillUrl: response.data.url,
                     updatedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
-            } else {
-                console.warn(`Booking ${bookingId} not found in bookings collection`);
             }
             
             return {
@@ -101,7 +123,12 @@ exports.createBillplzBill = onCall(
             };
             
         } catch (error) {
-            console.error('Billplz creation error:', error.response?.data || error.message);
+            console.error('Billplz creation error:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
+            
             return {
                 success: false,
                 error: error.response?.data?.message || error.message
@@ -110,85 +137,63 @@ exports.createBillplzBill = onCall(
     }
 );
 
-// Billplz Webhook/Callback Handler - FIXED Webhook Handler
+// ==============================================
+// BILLPLZ WEBHOOK/CALLBACK HANDLER
+// ==============================================
 exports.billplzCallback = onRequest(
     { secrets: [BILLPLZ_X_SIGNATURE] },
     async (req, res) => {
-        console.log('Received billplz callback:', req.method);
-        console.log('Headers:', req.headers);
-        console.log('Query:', req.query);
+        console.log('Billplz callback received:', req.method);
         
         try {
-            // Handle GET callback (Billplz sends GET to redirect_url)
+            const config = await getConfig();
+            
+            // Handle GET callback (redirect after payment)
             if (req.method === 'GET') {
                 const { billplz_id, billplz_paid, id, paid, reference_1, transaction_id } = req.query;
                 
                 console.log('GET callback params:', { billplz_id, billplz_paid, id, paid, reference_1 });
                 
                 if (billplz_paid === 'true' || paid === 'true') {
-                    console.log('GET callback - Payment confirmed for:', reference_1);
                     const billId = billplz_id || id;
-                    await updatePaymentAndBooking(reference_1, billId, transaction_id);
-                    return res.redirect(`${APP_URL.value()}/payment-successful.html?bookingId=${reference_1}&status=success`);
+                    const result = await updatePaymentAndBlockDates(reference_1, billId, transaction_id);
+                    
+                    if (result.success) {
+                        return res.redirect(`${config.appUrl}/payment-successful.html?bookingId=${reference_1}&status=success`);
+                    } else {
+                        return res.redirect(`${config.appUrl}/payment-successful.html?bookingId=${reference_1}&status=processing`);
+                    }
                 }
-                return res.redirect(`${APP_URL.value()}/booking-pending.html?bookingId=${reference_1}&status=pending`);
+                return res.redirect(`${config.appUrl}/booking-pending.html?bookingId=${reference_1}&status=pending`);
             }
             
-            // Handle POST webhook (Billplz sends POST to callback_url)
-            // Get signature from header - Billplz uses X-Billplz-Signature
-            const billplzSignature = req.headers['x-billplz-signature'] || req.headers['X-Billplz-Signature'];
-            
-            if (!billplzSignature) {
-                console.error('No signature found in headers');
-                return res.status(400).send('No signature');
-            }
-            
-            // Get raw body for signature verification
+            // Handle POST webhook
             let rawBody = '';
             req.on('data', chunk => { rawBody += chunk; });
             
             req.on('end', async () => {
                 try {
-                    // Verify signature
+                    const signature = req.headers['x-billplz-signature'];
                     const generatedSignature = crypto
-                        .createHmac('sha256', BILLPLZ_X_SIGNATURE.value())
+                        .createHmac('sha256', config.billplzXSignature)
                         .update(rawBody)
                         .digest('hex');
                     
-                    console.log('Signature verification:', { 
-                        received: billplzSignature.substring(0, 20), 
-                        generated: generatedSignature.substring(0, 20),
-                        match: generatedSignature === billplzSignature 
-                    });
-                    
-                    if (generatedSignature !== billplzSignature) {
+                    if (generatedSignature !== signature) {
                         console.error('Invalid signature');
                         return res.status(403).send('Invalid signature');
                     }
                     
-                    // Parse the data - Billplz sends as JSON when content-type is JSON
-                    let data;
-                    if (req.headers['content-type'] === 'application/json') {
-                        data = JSON.parse(rawBody);
-                    } else {
-                        // Handle x-www-form-urlencoded
-                        const urlParams = new URLSearchParams(rawBody);
-                        data = Object.fromEntries(urlParams);
-                    }
-                    
+                    const data = JSON.parse(rawBody);
                     console.log('Webhook data:', data);
                     
-                    const { id, paid_at, reference_1, state, transaction_id } = data;
-                    
-                    if (paid_at || state === 'paid' || data.paid === 'true') {
-                        console.log(`Payment confirmed for booking: ${reference_1}`);
-                        await updatePaymentAndBooking(reference_1, id, transaction_id);
+                    if (data.paid_at || data.state === 'paid') {
+                        await updatePaymentAndBlockDates(data.reference_1, data.id, data.transaction_id);
                     }
                     
                     res.status(200).send('OK');
-                    
-                } catch (parseError) {
-                    console.error('Parse error:', parseError);
+                } catch (error) {
+                    console.error('Webhook error:', error);
                     res.status(500).send('Error');
                 }
             });
@@ -200,51 +205,104 @@ exports.billplzCallback = onRequest(
     }
 );
 
-// Helper function to update payment and booking
-async function updatePaymentAndBooking(bookingId, billplzBillId, transactionId = null) {
+// ==============================================
+// UPDATE PAYMENT AND BLOCK DATES
+// ==============================================
+async function updatePaymentAndBlockDates(bookingId, billId, transactionId = null) {
     try {
-        console.log(`Updating booking ${bookingId} with bill ID ${billplzBillId}`);
+        console.log(`Updating booking ${bookingId} - CONFIRMING AND BLOCKING DATES`);
         
-        // Update payments collection
-        await admin.firestore().collection('payments').doc(bookingId).update({
-            status: 'paid',
-            paidAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            transactionId: transactionId
-        });
-        
-        // Update bookings collection
+        // First, get the booking details
         const bookingQuery = await admin.firestore()
             .collection('bookings')
             .where('bookingId', '==', bookingId)
             .get();
         
-        if (!bookingQuery.empty) {
-            const bookingDoc = bookingQuery.docs[0];
-            await bookingDoc.ref.update({
-                status: 'confirmed',
-                paymentStatus: 'completed',
-                paymentDate: admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                transactionId: transactionId
-            });
-            console.log(`Booking ${bookingId} updated to confirmed`);
-        } else {
-            console.error(`Booking ${bookingId} not found in bookings collection`);
+        if (bookingQuery.empty) {
+            console.error(`Booking ${bookingId} not found`);
+            return { success: false, error: 'Booking not found' };
         }
+        
+        const bookingDoc = bookingQuery.docs[0];
+        const bookingData = bookingDoc.data();
+        
+        // Update payments collection
+        await admin.firestore().collection('payments').doc(bookingId).set({
+            status: 'paid',
+            paidAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            transactionId: transactionId,
+            billplzBillId: billId
+        }, { merge: true });
+        
+        // Update booking to CONFIRMED
+        await bookingDoc.ref.update({
+            status: 'confirmed',
+            paymentStatus: 'completed',
+            paymentDate: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            transactionId: transactionId,
+            confirmedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Create blocked dates entries
+        const blockedDatesRef = admin.firestore().collection('blocked_dates');
+        
+        const checkIn = new Date(bookingData.checkIn);
+        const checkOut = new Date(bookingData.checkOut);
+        const dates = [];
+        
+        for (let d = new Date(checkIn); d < checkOut; d.setDate(d.getDate() + 1)) {
+            const dateStr = d.toISOString().split('T')[0];
+            dates.push(dateStr);
+        }
+        
+        // Create blocked date entries for each night
+        for (const date of dates) {
+            const blockedDocRef = blockedDatesRef.doc(`${bookingData.roomType}_${date}`);
+            await blockedDocRef.set({
+                roomType: bookingData.roomType,
+                date: date,
+                bookingId: bookingId,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                status: 'blocked'
+            }, { merge: true });
+        }
+        
+        console.log(`✅ Booking ${bookingId} CONFIRMED - ${dates.length} dates blocked for ${bookingData.roomType}`);
+        
+        // Create audit record
+        await admin.firestore().collection('confirmed_bookings').doc(bookingId).set({
+            bookingId: bookingId,
+            confirmedAt: admin.firestore.FieldValue.serverTimestamp(),
+            checkIn: bookingData.checkIn,
+            checkOut: bookingData.checkOut,
+            roomType: bookingData.roomType,
+            guests: bookingData.guests,
+            totalPaid: bookingData.totalPrice,
+            nights: bookingData.nights,
+            transactionId: transactionId
+        });
+        
+        return { success: true, blockedDates: dates.length };
+        
     } catch (error) {
         console.error('Error updating payment/booking:', error);
         throw error;
     }
 }
 
-// Check Bill Status
+// ==============================================
+// CHECK BILL STATUS - Callable Function
+// ==============================================
 exports.checkBillStatus = onCall(
     { secrets: [BILLPLZ_API_KEY] },
     async (request) => {
         const { bookingId } = request.data;
         
         try {
+            const config = await getConfig();
+            
             const paymentDoc = await admin.firestore()
                 .collection('payments')
                 .doc(bookingId)
@@ -267,10 +325,10 @@ exports.checkBillStatus = onCall(
             if (paymentData.billplzBillId) {
                 try {
                     const response = await axios.get(
-                        `${getBillplzBaseUrl()}/bills/${paymentData.billplzBillId}`,
+                        `${getBillplzBaseUrl(config.billplzSandbox)}/bills/${paymentData.billplzBillId}`,
                         {
                             auth: {
-                                username: BILLPLZ_API_KEY.value(),
+                                username: config.billplzApiKey,
                                 password: ''
                             }
                         }
@@ -279,23 +337,7 @@ exports.checkBillStatus = onCall(
                     const billData = response.data;
                     
                     if (billData.paid_at || billData.state === 'paid') {
-                        await admin.firestore().collection('payments').doc(bookingId).update({
-                            status: 'paid',
-                            paidAt: admin.firestore.FieldValue.serverTimestamp()
-                        });
-                        
-                        const bookingQuery = await admin.firestore()
-                            .collection('bookings')
-                            .where('bookingId', '==', bookingId)
-                            .get();
-                        
-                        if (!bookingQuery.empty) {
-                            const bookingDoc = bookingQuery.docs[0];
-                            await bookingDoc.ref.update({
-                                status: 'confirmed',
-                                paymentStatus: 'completed'
-                            });
-                        }
+                        await updatePaymentAndBlockDates(bookingId, paymentData.billplzBillId, billData.transaction_id);
                         
                         return {
                             success: true,
@@ -335,3 +377,54 @@ exports.checkBillStatus = onCall(
         }
     }
 );
+
+// ==============================================
+// TEST BILLPLZ CONNECTION - HTTP Function
+// ==============================================
+exports.testBillplz = onRequest(
+    { secrets: [BILLPLZ_API_KEY] },
+    async (req, res) => {
+        try {
+            const config = await getConfig();
+            
+            console.log('Testing Billplz connection...');
+            console.log('Collection ID:', config.billplzCollectionId);
+            console.log('Sandbox mode:', config.billplzSandbox);
+            console.log('API URL:', getBillplzBaseUrl(config.billplzSandbox));
+            
+            // Test collection access
+            const response = await axios.get(
+                `${getBillplzBaseUrl(config.billplzSandbox)}/collections/${config.billplzCollectionId}`,
+                {
+                    auth: {
+                        username: config.billplzApiKey,
+                        password: ''
+                    }
+                }
+            );
+            
+            res.json({ 
+                success: true, 
+                message: 'Billplz connection successful!',
+                collection: response.data,
+                config: {
+                    sandbox: config.billplzSandbox,
+                    collectionId: config.billplzCollectionId,
+                    appUrl: config.appUrl,
+                    apiUrl: getBillplzBaseUrl(config.billplzSandbox)
+                }
+            });
+        } catch (error) {
+            console.error('Test error:', error.response?.data || error.message);
+            res.status(500).json({ 
+                success: false, 
+                error: error.response?.data || error.message,
+                config: {
+                    sandbox: BILLPLZ_SANDBOX.value(),
+                    collectionId: BILLPLZ_COLLECTION_ID.value(),
+                    appUrl: APP_URL.value()
+                }
+            });
+        }
+    }
+);;
