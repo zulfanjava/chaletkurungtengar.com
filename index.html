@@ -4143,7 +4143,23 @@
                     <i class="fas fa-calendar-alt"></i>
                     <div class="error-message" id="check-out-error">Please select a valid check-out date</div>
                 </div>
-                
+                <!-- Add this inside your booking modal, after the date inputs -->
+                <div class="calendar-container" id="availability-calendar" style="display: none;">
+                    <div class="calendar-header">
+                        <h4>Available Dates</h4>
+                        <div class="calendar-nav">
+                            <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                            <span id="current-month"></span>
+                            <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                    <div class="legend" style="display: flex; gap: 15px; margin-top: 15px; font-size: 0.8rem;">
+                        <span><span style="display: inline-block; width: 20px; height: 20px; background: #fff; border: 1px solid #ddd; margin-right: 5px;"></span> Available</span>
+                        <span><span style="display: inline-block; width: 20px; height: 20px; background: #ffebee; border: 1px solid #ffcdd2; margin-right: 5px;"></span> Booked</span>
+                        <span><span style="display: inline-block; width: 20px; height: 20px; background: #e3f2fd; border: 1px solid #bbdef5; margin-right: 5px;"></span> Today</span>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="room-type">Room Type</label>
                     <select id="room-type" required>
@@ -4311,7 +4327,7 @@
                             <i class="fas fa-qrcode"></i> DuitNow QR – Scan & Pay
                         </label>
                     </div>
-                    <div class="payment-method" id="method-billplz" style="display: none;">
+                    <div class="payment-method" id="method-billplz">
                         <input type="radio" name="paymentMethod" id="billplzPay" value="Billplz (Online Banking)">
                         <label for="billplzPay">
                             <i class="fas fa-university"></i> Billplz – Online Banking (FPX)
@@ -4332,11 +4348,16 @@
                         <span class="tnc-error">You must agree to the terms & conditions to proceed.</span>
                     </label>
                 </div>
-                
+                <!-- WhatsApp button (for QR/DuitNow) -->
                 <button type="button" class="whatsapp-payment-btn disabled" id="whatsapp-payment-btn" disabled>
                     <i class="fab fa-whatsapp"></i> Send Booking & Payment Proof to Admin
                 </button>
-                
+
+                <!-- Billplz Payment Button -->
+                <button type="button" class="modal-submit" id="billplz-payment-btn" style="display: none; background-color: #0056b3;">
+                    <i class="fas fa-credit-card"></i> Pay with Billplz (Online Banking)
+                </button>
+                                
                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                     <button type="button" class="modal-submit outline" id="step-3-back" style="background-color: #f0f0f0; color: #333;">Back</button>
                 </div>
@@ -4422,7 +4443,7 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
 
-    <script>
+<script>
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDdJoegR4pbGPmDPzQ52_xEVAvnXoObvCw",
@@ -4467,6 +4488,19 @@
             'triple': 'Seaview Triple Room (Ground Floor) - 5 rooms (4A,12A,2A,13A,15A)',
             'seaview-family': 'Seaview Family Room (Ground Floor) - 1 room (1A)',
             'superior': 'Superior Seaview Room (Ground Floor) - 1 room (5A)'
+        };
+
+        // Short room names for Billplz (shorter display)
+        const shortRoomNames = { 
+            'queen': 'Standard Queen',
+            'standard': 'Standard Triple',
+            'wheelchair': 'Std Triple (Wheelchair)',
+            'queen-sofabed': 'Queen w/ Sofabed',
+            'family': 'Standard Family',
+            'seaview': 'Seaview Queen',
+            'triple': 'Seaview Triple',
+            'seaview-family': 'Seaview Family',
+            'superior': 'Superior Seaview'
         };
 
         // Function to check if a date falls during school holiday or public holiday
@@ -4516,23 +4550,24 @@
             return false;
         }
         
-        // Function to check room availability in Firebase
+        // ==============================================
+        // ENHANCED ROOM AVAILABILITY CHECK WITH BLOCKED DATES
+        // ==============================================
         async function checkRoomAvailability(checkInDate, checkOutDate, roomType) {
             try {
                 const bookingsRef = db.collection('bookings');
+                const blockedDatesRef = db.collection('blocked_dates');
                 
+                // Check existing bookings (pending and confirmed)
                 const snapshot = await bookingsRef
                     .where('roomType', '==', roomType)
                     .where('status', 'in', ['pending', 'confirmed'])
                     .get();
                 
-                if (snapshot.empty) {
-                    return { available: true };
-                }
-                
                 const checkIn = new Date(checkInDate);
                 const checkOut = new Date(checkOutDate);
                 
+                // Check if any booking overlaps
                 let isOverlapping = false;
                 snapshot.forEach(doc => {
                     const booking = doc.data();
@@ -4549,15 +4584,54 @@
                         available: false,
                         message: "This room is not available for the selected dates. Please choose different dates or another room type."
                     };
-                } else {
-                    return { available: true };
                 }
+                
+                // Also check blocked_dates collection for extra safety
+                const datesToCheck = [];
+                for (let d = new Date(checkIn); d < checkOut; d.setDate(d.getDate() + 1)) {
+                    datesToCheck.push(d.toISOString().split('T')[0]);
+                }
+                
+                for (const date of datesToCheck) {
+                    const blockedDoc = await blockedDatesRef.doc(`${roomType}_${date}`).get();
+                    if (blockedDoc.exists) {
+                        return {
+                            available: false,
+                            message: `This room is not available on ${date}. Please choose different dates.`
+                        };
+                    }
+                }
+                
+                return { available: true };
+                
             } catch (error) {
                 console.error("Error checking availability:", error);
                 return { 
                     available: false, 
                     message: "Unable to check availability at this moment. Please try again later." 
                 };
+            }
+        }
+
+        // Helper function to log blocked dates (for debugging)
+        async function logBlockedDates(roomType) {
+            try {
+                const blockedDatesRef = db.collection('blocked_dates');
+                const snapshot = await blockedDatesRef
+                    .where('roomType', '==', roomType)
+                    .where('status', '==', 'blocked')
+                    .get();
+                
+                const blockedDates = [];
+                snapshot.forEach(doc => {
+                    blockedDates.push(doc.data().date);
+                });
+                
+                console.log(`Blocked dates for ${roomType}:`, blockedDates);
+                return blockedDates;
+            } catch (error) {
+                console.error('Error fetching blocked dates:', error);
+                return [];
             }
         }
 
@@ -4575,6 +4649,9 @@
         document.addEventListener('DOMContentLoaded', async function() {
             
             document.getElementById('current-year').textContent = new Date().getFullYear();
+            
+            // Make logBlockedDates available in console for debugging
+            window.logBlockedDates = logBlockedDates;
             
             // Mobile menu toggle
             const menuToggle = document.getElementById('menu-toggle');
@@ -4957,6 +5034,26 @@
             const tncCheckbox = document.getElementById('tnc-agree');
             const whatsappBtn = document.getElementById('whatsapp-payment-btn');
             const tncWrapper = document.getElementById('tnc-wrapper');
+            const billplzBtn = document.getElementById('billplz-payment-btn');
+            const qrRadio = document.getElementById('qrPay');
+            const billplzRadio = document.getElementById('billplzPay');
+            
+            // Toggle between payment methods
+            if (qrRadio && billplzRadio) {
+                qrRadio.addEventListener('change', function() {
+                    if (this.checked) {
+                        if (whatsappBtn) whatsappBtn.style.display = 'block';
+                        if (billplzBtn) billplzBtn.style.display = 'none';
+                    }
+                });
+                
+                billplzRadio.addEventListener('change', function() {
+                    if (this.checked) {
+                        if (whatsappBtn) whatsappBtn.style.display = 'none';
+                        if (billplzBtn) billplzBtn.style.display = 'block';
+                    }
+                });
+            }
             
             if (tncCheckbox && whatsappBtn) {
                 tncCheckbox.addEventListener('change', function() {
@@ -4991,6 +5088,95 @@
                 processPaymentAndSendToWhatsApp();
             });
             
+            // Handle Billplz payment - INSIDE DOMContentLoaded so it can access bookingData
+            if (billplzBtn) {
+                billplzBtn.addEventListener('click', async function() {
+                    console.log('Billplz button clicked');
+                    console.log('Current bookingData:', bookingData);
+                    
+                    // Check if bookingData has required fields
+                    if (!bookingData || !bookingData.totalPrice || !bookingData.name) {
+                        alert('Please complete steps 1 and 2 first before payment.');
+                        showStep(1);
+                        return;
+                    }
+                    
+                    // Check T&C checkbox
+                    if (!tncCheckbox || !tncCheckbox.checked) {
+                        if (tncWrapper) tncWrapper.classList.add('error');
+                        if (tncCheckbox) tncCheckbox.focus();
+                        return;
+                    }
+                    
+                    if (tncWrapper) tncWrapper.classList.remove('error');
+                    
+                    // Disable button
+                    const btn = this;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Bill...';
+                    
+                    try {
+                        // Generate booking ID if not exists
+                        if (!bookingData.bookingId) {
+                            bookingData.bookingId = generateBookingId();
+                        }
+                        
+                        // Get room name for Billplz (shorter version)
+                        const roomTypeName = shortRoomNames[bookingData.roomType] || roomNames[bookingData.roomType] || bookingData.roomType;
+                        
+                        console.log('Calling createBillplzBill with:', {
+                            bookingId: bookingData.bookingId,
+                            totalAmount: bookingData.totalPrice,
+                            name: bookingData.name,
+                            email: bookingData.email,
+                            roomType: roomTypeName,
+                            nights: bookingData.nights
+                        });
+                        
+                        // Call Billplz create bill function
+                        const createBill = firebase.functions().httpsCallable('createBillplzBill');
+                        const result = await createBill({
+                            bookingId: bookingData.bookingId,
+                            totalAmount: bookingData.totalPrice,
+                            name: bookingData.name,
+                            email: bookingData.email,
+                            roomType: roomTypeName,
+                            nights: bookingData.nights
+                        });
+                        
+                        console.log('Billplz result:', result);
+                        
+                        if (result.data.success && result.data.billUrl) {
+                            // Save to Firebase first
+                            bookingData.paymentMethod = 'Billplz (Online Banking)';
+                            await saveBookingToFirebase();
+                            
+                            // Open Billplz payment page in new tab
+                            window.open(result.data.billUrl, '_blank');
+                            
+                            // Show success message
+                            alert(`Payment link opened in new tab.\n\nBooking ID: ${bookingData.bookingId}\nAmount: RM ${bookingData.totalPrice.toFixed(2)}\n\nPlease complete the payment to confirm your booking.`);
+                            
+                            // Close modal
+                            bookingModal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                            
+                            // Reset form
+                            resetBookingForm();
+                        } else {
+                            throw new Error(result.data.error || 'Failed to create payment bill');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Billplz error details:', error);
+                        alert('Failed to create payment: ' + (error.message || 'Please try again or contact admin at +60 12-909 7591'));
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-credit-card"></i> Pay with Billplz (Online Banking)';
+                    }
+                });
+            }
+            
             document.getElementById('book-another-room').addEventListener('click', function() {
                 resetBookingForm();
                 showStep(1);
@@ -5020,9 +5206,21 @@
                     }
                     if (tncCheckbox) {
                         tncCheckbox.checked = false;
-                        whatsappBtn.disabled = true;
-                        whatsappBtn.classList.add('disabled');
+                        if (whatsappBtn) {
+                            whatsappBtn.disabled = true;
+                            whatsappBtn.classList.add('disabled');
+                        }
                         tncWrapper.classList.remove('error');
+                    }
+                    // Reset payment method visibility
+                    if (qrRadio && billplzRadio) {
+                        if (qrRadio.checked) {
+                            if (whatsappBtn) whatsappBtn.style.display = 'block';
+                            if (billplzBtn) billplzBtn.style.display = 'none';
+                        } else if (billplzRadio.checked) {
+                            if (whatsappBtn) whatsappBtn.style.display = 'none';
+                            if (billplzBtn) billplzBtn.style.display = 'block';
+                        }
                     }
                 }
             }
@@ -5060,7 +5258,7 @@
                 }
                 
                 if (isValid) {
-                    // Check room availability
+                    // Check room availability using enhanced function
                     const availability = await checkRoomAvailability(checkIn, checkOut, roomType);
                     
                     if (!availability.available) {
@@ -5146,7 +5344,7 @@
             }
             
             // ==============================================
-            // BILLPLZ PAYMENT FUNCTIONS (hidden - kept for future but not active)
+            // PAYMENT FUNCTIONS
             // ==============================================
             
             async function processPaymentAndSendToWhatsApp() {
@@ -5267,8 +5465,10 @@
                 document.getElementById('special-requests').value = '';
                 if (tncCheckbox) {
                     tncCheckbox.checked = false;
-                    whatsappBtn.disabled = true;
-                    whatsappBtn.classList.add('disabled');
+                    if (whatsappBtn) {
+                        whatsappBtn.disabled = true;
+                        whatsappBtn.classList.add('disabled');
+                    }
                     tncWrapper.classList.remove('error');
                 }
                 availabilityStatus.style.display = 'none';
