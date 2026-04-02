@@ -443,6 +443,164 @@
             font-size: 0.8rem;
         }
         
+        /* NEW: Blocked Dates Section Styles */
+        .blocked-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .blocked-header {
+            background-color: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .blocked-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .blocked-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        
+        .blocked-control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .blocked-control-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .blocked-control-group select,
+        .blocked-control-group input {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            background-color: white;
+        }
+        
+        .btn-block-add {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-block-add:hover {
+            background-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .blocked-list-container {
+            padding: 1rem 1.5rem;
+        }
+        
+        .blocked-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .blocked-list-header h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .blocked-clear-all {
+            background: none;
+            border: none;
+            color: #f44336;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .blocked-clear-all:hover {
+            background-color: #ffebee;
+        }
+        
+        .blocked-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+        }
+        
+        .blocked-badge {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .blocked-badge .remove-block {
+            background: none;
+            border: none;
+            color: #c62828;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 2px 4px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .blocked-badge .remove-block:hover {
+            background-color: #ffcdd2;
+            transform: scale(1.1);
+        }
+        
+        .empty-blocked {
+            color: #999;
+            font-size: 0.85rem;
+            padding: 1rem;
+            text-align: center;
+            font-style: italic;
+        }
+        
         .filter-section {
             background-color: white;
             padding: 1.2rem;
@@ -1158,7 +1316,7 @@
             <section class="welcome-section">
                 <div class="welcome-content">
                     <h2>Welcome to Admin Dashboard</h2>
-                    <p>Manage bookings, view statistics, and monitor your chalet's performance.</p>
+                    <p>Manage bookings, block dates, view statistics, and monitor your chalet's performance.</p>
                 </div>
             </section>
 
@@ -1202,6 +1360,45 @@
                         </div>
                     </div>
                     <div class="stat-number" id="cancelled-bookings">0</div>
+                </div>
+            </div>
+
+            <!-- NEW: Blocked Dates Management Section -->
+            <div class="blocked-section">
+                <div class="blocked-header">
+                    <h3><i class="fas fa-ban" style="color:#f44336;"></i> Blocked Dates</h3>
+                    <div class="blocked-controls">
+                        <div class="blocked-control-group">
+                            <label>Room Type</label>
+                            <select id="block-room-select">
+                                <option value="queen">Standard Queen (Upper Floor)</option>
+                                <option value="standard">Standard Triple (Ground Floor)</option>
+                                <option value="wheelchair">Standard Triple Wheelchair Accessible</option>
+                                <option value="queen-sofabed">Standard Queen with Sofabed</option>
+                                <option value="family">Standard Family (Ground Floor)</option>
+                                <option value="seaview">Seaview Queen (Upper Floor)</option>
+                                <option value="triple">Seaview Triple (Ground Floor)</option>
+                                <option value="seaview-family">Seaview Family (Ground Floor)</option>
+                                <option value="superior">Superior Seaview (Ground Floor)</option>
+                            </select>
+                        </div>
+                        <div class="blocked-control-group">
+                            <label>Date to Block</label>
+                            <input type="date" id="block-date-input">
+                        </div>
+                        <button class="btn-block-add" id="add-blocked-date">
+                            <i class="fas fa-plus-circle"></i> Block Date
+                        </button>
+                    </div>
+                </div>
+                <div class="blocked-list-container">
+                    <div class="blocked-list-header">
+                        <h4><i class="fas fa-calendar-times"></i> Currently Blocked Dates</h4>
+                        <button class="blocked-clear-all" id="clear-all-blocked">Clear All Blocked Dates</button>
+                    </div>
+                    <div class="blocked-grid" id="blocked-dates-grid">
+                        <div class="empty-blocked">Loading blocked dates...</div>
+                    </div>
                 </div>
             </div>
 
@@ -1359,8 +1556,8 @@
         let unreadCount = 0;
         let notifications = [];
         let lastNotificationTime = 0;
-        const NOTIFICATION_COOLDOWN = 2000; // 2 seconds cooldown
-        let alarmLoopActive = false; // NEW: flag to track if alarm is playing
+        const NOTIFICATION_COOLDOWN = 2000;
+        let alarmLoopActive = false;
 
         // DOM Elements
         const loginPage = document.getElementById('login-page');
@@ -1419,23 +1616,20 @@
             'standard': 'Standard Triple',
             'family': 'Standard Family',
             'superior': 'Superior Seaview',
-            'seaview-family': 'Seaview Family'
+            'seaview-family': 'Seaview Family',
+            'wheelchair': 'Wheelchair Accessible',
+            'queen-sofabed': 'Queen w/ Sofabed'
         };
 
-        // ============= NOTIFICATION SYSTEM - FIXED WITH LOOPING ALARM =============
+        // ============= NOTIFICATION SYSTEM =============
         
-        // Function to start alarm loop
         function startAlarmLoop() {
-            if (alarmLoopActive) return; // already playing
+            if (alarmLoopActive) return;
             alarmLoopActive = true;
-            
-            // Show stop button in notification dropdown header
             const header = document.querySelector('.notification-header');
             if (header) {
-                // Remove existing stop button if any
                 const existingBtn = document.getElementById('stop-alarm-btn');
                 if (existingBtn) existingBtn.remove();
-                
                 const stopBtn = document.createElement('button');
                 stopBtn.id = 'stop-alarm-btn';
                 stopBtn.className = 'stop-alarm-btn';
@@ -1446,49 +1640,29 @@
                 });
                 header.appendChild(stopBtn);
             }
-            
-            // Play the sound in a loop (audio element already has 'loop' attribute)
             if (notificationSound) {
                 notificationSound.currentTime = 0;
-                notificationSound.play().catch(e => {
-                    console.log('Audio play failed:', e);
-                    // Fallback to browser vibration if supported
-                    if (navigator.vibrate) {
-                        const vibrateInterval = setInterval(() => {
-                            if (!alarmLoopActive) {
-                                clearInterval(vibrateInterval);
-                                return;
-                            }
-                            navigator.vibrate([500, 500, 500]);
-                        }, 1500);
-                    }
-                });
+                notificationSound.play().catch(e => console.log('Audio play failed:', e));
             }
         }
 
-        // Function to stop alarm loop
         function stopAlarmLoop() {
             alarmLoopActive = false;
             if (notificationSound) {
                 notificationSound.pause();
                 notificationSound.currentTime = 0;
             }
-            // Remove stop button
             const stopBtn = document.getElementById('stop-alarm-btn');
             if (stopBtn) stopBtn.remove();
         }
 
-        // Play notification sound (now just triggers the loop)
         function playNotificationSound() {
             const now = Date.now();
             if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) return;
             lastNotificationTime = now;
-            
-            // Start the looping alarm
             startAlarmLoop();
         }
 
-        // Show toast notification
         function showToast(booking) {
             const toast = document.createElement('div');
             toast.className = 'toast-notification';
@@ -1506,24 +1680,13 @@
                     <i class="fas fa-times"></i>
                 </button>
             `;
-            
             toastContainer.appendChild(toast);
-            
-            // Auto remove after 8 seconds
-            setTimeout(() => {
-                if (toast.parentElement) {
-                    toast.remove();
-                }
-            }, 8000);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 8000);
         }
 
-        // Add notification
         function addNotification(booking) {
-            // Prevent duplicates
             if (processedNotificationIds.has(booking.id)) return;
-            
             processedNotificationIds.add(booking.id);
-            
             const notification = {
                 id: booking.id,
                 bookingId: booking.bookingId,
@@ -1534,28 +1697,20 @@
                 timestamp: booking.createdAt || new Date().toISOString(),
                 read: false
             };
-            
             notifications.unshift(notification);
             unreadCount++;
             updateNotificationBadge();
-            
-            // PLAY SOUND (LOOPING) AND SHOW ALERT
             playNotificationSound();
             showToast(booking);
-            
-            // Browser notification
             if (Notification.permission === 'granted') {
                 new Notification('🏨 New Booking!', {
                     body: `${booking.name} booked ${roomNames[booking.roomType] || booking.roomType}`,
-                    icon: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80',
-                    vibrate: [200, 100, 200]
+                    icon: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'
                 });
             }
-            
             renderNotifications();
         }
 
-        // Update notification badge
         function updateNotificationBadge() {
             if (unreadCount > 0) {
                 notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
@@ -1565,45 +1720,26 @@
             }
         }
 
-        // Render notifications
         function renderNotifications() {
             if (notifications.length === 0) {
-                notificationList.innerHTML = `
-                    <div style="padding: 2rem; text-align: center; color: #666;">
-                        <i class="fas fa-bell-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                        <p>No notifications</p>
-                    </div>
-                `;
+                notificationList.innerHTML = `<div style="padding: 2rem; text-align: center; color: #666;"><i class="fas fa-bell-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i><p>No notifications</p></div>`;
                 return;
             }
-            
             let html = '';
-            const recentNotifications = notifications.slice(0, 10);
-            
-            recentNotifications.forEach(notification => {
+            notifications.slice(0, 10).forEach(notification => {
                 const date = new Date(notification.timestamp);
                 const timeAgo = getTimeAgo(date);
                 const initials = notification.name.charAt(0).toUpperCase();
-                
-                html += `
-                    <div class="notification-item ${notification.read ? '' : 'unread'}" data-booking-id="${notification.id}">
-                        <div class="notification-avatar">${initials}</div>
-                        <div class="notification-content">
-                            <div class="notification-title">${notification.name}</div>
-                            <div class="notification-desc">
-                                ${roomNames[notification.roomType] || notification.roomType}
+                html += `<div class="notification-item ${notification.read ? '' : 'unread'}" data-booking-id="${notification.id}">
+                            <div class="notification-avatar">${initials}</div>
+                            <div class="notification-content">
+                                <div class="notification-title">${notification.name}</div>
+                                <div class="notification-desc">${roomNames[notification.roomType] || notification.roomType}</div>
+                                <div class="notification-time"><i class="fas fa-clock"></i> ${timeAgo}</div>
                             </div>
-                            <div class="notification-time">
-                                <i class="fas fa-clock"></i> ${timeAgo}
-                            </div>
-                        </div>
-                    </div>
-                `;
+                        </div>`;
             });
-            
             notificationList.innerHTML = html;
-            
-            // Add click listeners
             document.querySelectorAll('.notification-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const bookingId = this.getAttribute('data-booking-id');
@@ -1614,7 +1750,6 @@
             });
         }
 
-        // Mark as read
         function markAsRead(notificationId) {
             const notification = notifications.find(n => n.id === notificationId);
             if (notification && !notification.read) {
@@ -1622,23 +1757,18 @@
                 unreadCount = Math.max(0, unreadCount - 1);
                 updateNotificationBadge();
                 renderNotifications();
-                // If no unread notifications left, stop the alarm
-                if (unreadCount === 0) {
-                    stopAlarmLoop();
-                }
+                if (unreadCount === 0) stopAlarmLoop();
             }
         }
 
-        // Mark all as read
         function markAllAsRead() {
             notifications.forEach(n => n.read = true);
             unreadCount = 0;
             updateNotificationBadge();
             renderNotifications();
-            stopAlarmLoop(); // Stop alarm when all read
+            stopAlarmLoop();
         }
 
-        // Get time ago
         function getTimeAgo(date) {
             const seconds = Math.floor((new Date() - date) / 1000);
             if (seconds < 60) return 'just now';
@@ -1650,10 +1780,8 @@
             return days + 'd ago';
         }
 
-        // Setup notifications listener
         function setupNotificationsListener() {
             if (notificationsUnsubscribe) notificationsUnsubscribe();
-            
             notificationsUnsubscribe = db.collection('bookings')
                 .orderBy('createdAt', 'desc')
                 .limit(50)
@@ -1661,12 +1789,10 @@
                     snapshot.docChanges().forEach((change) => {
                         if (change.type === 'added') {
                             const booking = { id: change.doc.id, ...change.doc.data() };
-                            // Only notify for new pending bookings
                             if (booking.status === 'pending' || !booking.status) {
                                 const createdAt = booking.createdAt ? new Date(booking.createdAt) : new Date();
                                 const now = new Date();
                                 const diffSeconds = (now - createdAt) / 1000;
-                                // Notify if booking is less than 30 seconds old
                                 if (diffSeconds < 30) {
                                     addNotification(booking);
                                 } else {
@@ -1679,16 +1805,106 @@
                 });
         }
 
+        // ============= BLOCKED DATES FUNCTIONS (NEW) =============
+        
+        async function loadBlockedDates() {
+            const container = document.getElementById('blocked-dates-grid');
+            if (!container) return;
+            container.innerHTML = '<div class="empty-blocked">Loading blocked dates...</div>';
+            try {
+                const snapshot = await db.collection('blocked_dates').orderBy('date', 'asc').get();
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-blocked">No blocked dates. Select a room and date to block.</div>';
+                    return;
+                }
+                let html = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const roomLabel = roomNames[data.roomType] || data.roomType;
+                    html += `<div class="blocked-badge" data-id="${doc.id}">
+                                <i class="fas fa-ban"></i> ${roomLabel} - ${data.date}
+                                <button class="remove-block" onclick="removeBlockedDate('${doc.id}')"><i class="fas fa-times-circle"></i></button>
+                            </div>`;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading blocked dates:', error);
+                container.innerHTML = '<div class="empty-blocked">Error loading blocked dates</div>';
+            }
+        }
+
+        window.removeBlockedDate = async function(docId) {
+            if (!auth.currentUser) return;
+            try {
+                await db.collection('blocked_dates').doc(docId).delete();
+                loadBlockedDates();
+                alert('Blocked date removed successfully');
+            } catch (error) {
+                alert('Failed to remove blocked date: ' + error.message);
+            }
+        };
+
+        async function addBlockedDate() {
+            if (!auth.currentUser) {
+                alert('Please login first');
+                return;
+            }
+            const roomSelect = document.getElementById('block-room-select');
+            const dateInput = document.getElementById('block-date-input');
+            const roomType = roomSelect.value;
+            const date = dateInput.value;
+            
+            if (!date) {
+                alert('Please select a date to block');
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            if (date < today) {
+                alert('Cannot block past dates');
+                return;
+            }
+            
+            const docId = `${roomType}_${date}`;
+            try {
+                await db.collection('blocked_dates').doc(docId).set({
+                    roomType: roomType,
+                    date: date,
+                    status: 'blocked',
+                    createdAt: new Date().toISOString()
+                });
+                dateInput.value = '';
+                loadBlockedDates();
+                alert(`Successfully blocked ${roomNames[roomType] || roomType} on ${date}`);
+            } catch (error) {
+                console.error(error);
+                alert('Failed to block date: ' + error.message);
+            }
+        }
+
+        async function clearAllBlockedDates() {
+            if (!auth.currentUser) return;
+            if (!confirm('Are you sure you want to clear ALL blocked dates for all rooms?')) return;
+            try {
+                const snapshot = await db.collection('blocked_dates').get();
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                loadBlockedDates();
+                alert('All blocked dates cleared');
+            } catch (error) {
+                alert('Error clearing blocked dates: ' + error.message);
+            }
+        }
+
         // ============= AUTHENTICATION =============
         
         auth.onAuthStateChanged((user) => {
             if (user) {
                 showAdminDashboard(user);
                 loadBookings();
-                // Request notification permission
-                if (Notification.permission === 'default') {
-                    Notification.requestPermission();
-                }
+                loadBlockedDates(); // NEW: Load blocked dates when logged in
+                if (Notification.permission === 'default') Notification.requestPermission();
                 processedNotificationIds.clear();
                 notifications = [];
                 unreadCount = 0;
@@ -1698,7 +1914,7 @@
                 showLoginPage();
                 clearDashboardData();
                 if (notificationsUnsubscribe) notificationsUnsubscribe();
-                stopAlarmLoop(); // Stop alarm on logout
+                stopAlarmLoop();
             }
         });
 
@@ -1727,11 +1943,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             currentYearSpan.textContent = new Date().getFullYear();
             
-            // Pre-load audio on user interaction
             const preloadAudio = () => {
                 if (notificationSound) {
                     notificationSound.load();
-                    // Try to play and immediately pause to unlock audio on mobile
                     notificationSound.play().then(() => {
                         notificationSound.pause();
                         notificationSound.currentTime = 0;
@@ -1747,9 +1961,8 @@
             if (auth.currentUser) {
                 showAdminDashboard(auth.currentUser);
                 loadBookings();
-                if (Notification.permission === 'default') {
-                    Notification.requestPermission();
-                }
+                loadBlockedDates(); // NEW
+                if (Notification.permission === 'default') Notification.requestPermission();
                 setupNotificationsListener();
             } else {
                 showLoginPage();
@@ -1760,12 +1973,10 @@
                 e.preventDefault();
                 const email = document.getElementById('admin-email').value;
                 const password = document.getElementById('admin-password').value;
-                
                 const loginBtn = e.target.querySelector('.login-btn');
                 const originalText = loginBtn.textContent;
                 loginBtn.textContent = 'Logging in...';
                 loginBtn.disabled = true;
-                
                 try {
                     await auth.signInWithEmailAndPassword(email, password);
                     loginError.style.display = 'none';
@@ -1781,7 +1992,7 @@
             // Logout
             logoutBtn.addEventListener('click', async function() {
                 if (notificationsUnsubscribe) notificationsUnsubscribe();
-                stopAlarmLoop(); // stop alarm on logout
+                stopAlarmLoop();
                 await auth.signOut();
             });
 
@@ -1802,11 +2013,7 @@
             // Delete all
             deleteAllBtn.addEventListener('click', () => {
                 if (requireAuth()) {
-                    showConfirmationModal(
-                        'Delete All Bookings',
-                        'Delete ALL bookings? This cannot be undone.',
-                        'deleteAll'
-                    );
+                    showConfirmationModal('Delete All Bookings', 'Delete ALL bookings? This cannot be undone.', 'deleteAll');
                 }
             });
 
@@ -1826,20 +2033,11 @@
                     hideConfirmationModal();
                     return;
                 }
-                
                 switch(currentAction) {
-                    case 'confirm':
-                        await updateBookingStatus(currentBookingId, 'confirmed');
-                        break;
-                    case 'cancel':
-                        await updateBookingStatus(currentBookingId, 'cancelled');
-                        break;
-                    case 'delete':
-                        await deleteBooking(currentBookingId);
-                        break;
-                    case 'deleteAll':
-                        await deleteAllBookings();
-                        break;
+                    case 'confirm': await updateBookingStatus(currentBookingId, 'confirmed'); break;
+                    case 'cancel': await updateBookingStatus(currentBookingId, 'cancelled'); break;
+                    case 'delete': await deleteBooking(currentBookingId); break;
+                    case 'deleteAll': await deleteAllBookings(); break;
                 }
                 hideConfirmationModal();
             });
@@ -1862,16 +2060,18 @@
                 notificationDropdown.classList.remove('active');
                 document.querySelector('.bookings-section').scrollIntoView({ behavior: 'smooth' });
             });
+
+            // NEW: Blocked Dates button listeners
+            document.getElementById('add-blocked-date').addEventListener('click', addBlockedDate);
+            document.getElementById('clear-all-blocked').addEventListener('click', clearAllBlockedDates);
         });
 
-        // Show admin dashboard
         function showAdminDashboard(user) {
             loginPage.style.display = 'none';
             adminDashboard.style.display = 'flex';
             currentUserSpan.textContent = user.email ? user.email.split('@')[0] : 'Admin';
         }
 
-        // Show login page
         function showLoginPage() {
             loginPage.style.display = 'flex';
             adminDashboard.style.display = 'none';
@@ -1880,62 +2080,47 @@
             document.getElementById('admin-password').value = '';
         }
 
-        // Load bookings
         async function loadBookings() {
             if (!requireAuth()) return;
-            
             bookingsSpinner.style.display = 'block';
             bookingsTableBody.innerHTML = '';
             noBookingsMsg.style.display = 'none';
-            
             try {
                 const statusFilter = filterStatus.value;
                 const roomFilter = filterRoom.value;
                 const dateFilter = filterDate.value;
-                
                 let query = db.collection('bookings');
-                
                 if (statusFilter !== 'all') query = query.where('status', '==', statusFilter);
                 if (roomFilter !== 'all') query = query.where('roomType', '==', roomFilter);
-                
                 const snapshot = await query.orderBy('createdAt', 'desc').get();
-                
                 bookingsSpinner.style.display = 'none';
-                
                 if (snapshot.empty) {
                     noBookingsMsg.style.display = 'block';
                     updateStats({});
                     return;
                 }
-                
                 const bookings = [];
                 const stats = { total: 0, pending: 0, confirmed: 0, cancelled: 0 };
-                
                 snapshot.forEach(doc => {
                     const booking = { id: doc.id, ...doc.data() };
-                    
                     if (dateFilter) {
                         const checkInDate = new Date(booking.checkIn);
                         const filterDateObj = new Date(dateFilter);
                         if (checkInDate.toDateString() !== filterDateObj.toDateString()) return;
                     }
-                    
                     bookings.push(booking);
                     stats.total++;
                     if (booking.status === 'pending') stats.pending++;
                     if (booking.status === 'confirmed') stats.confirmed++;
                     if (booking.status === 'cancelled') stats.cancelled++;
                 });
-                
                 updateStats(stats);
-                
                 if (bookings.length === 0 && dateFilter) {
                     noBookingsMsg.style.display = 'block';
                     noBookingsMsg.textContent = 'No bookings found for selected date';
                 } else {
                     displayBookings(bookings);
                 }
-                
             } catch (error) {
                 console.error('Error loading bookings:', error);
                 bookingsSpinner.style.display = 'none';
@@ -1944,7 +2129,6 @@
             }
         }
 
-        // Update stats
         function updateStats(stats) {
             totalBookingsEl.textContent = stats.total || 0;
             pendingBookingsEl.textContent = stats.pending || 0;
@@ -1952,96 +2136,45 @@
             cancelledBookingsEl.textContent = stats.cancelled || 0;
         }
 
-        // Display bookings
         function displayBookings(bookings) {
             bookingsTableBody.innerHTML = '';
-            
             bookings.forEach(booking => {
                 const row = document.createElement('tr');
-                
                 const checkInDate = new Date(booking.checkIn);
-                const formattedCheckIn = checkInDate.toLocaleDateString('en-US', {
-                    month: 'short', day: 'numeric'
-                });
-                
+                const formattedCheckIn = checkInDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 let statusClass = 'status-pending';
                 let statusText = 'Pending';
-                if (booking.status === 'confirmed') {
-                    statusClass = 'status-confirmed';
-                    statusText = 'Confirmed';
-                } else if (booking.status === 'cancelled') {
-                    statusClass = 'status-cancelled';
-                    statusText = 'Cancelled';
-                }
-                
+                if (booking.status === 'confirmed') { statusClass = 'status-confirmed'; statusText = 'Confirmed'; }
+                else if (booking.status === 'cancelled') { statusClass = 'status-cancelled'; statusText = 'Cancelled'; }
                 row.innerHTML = `
                     <td><small>${booking.bookingId || booking.id.substring(0, 6)}</small></td>
-                    <td>
-                        <strong>${booking.name}</strong><br>
-                        <small>${booking.phone || 'No phone'}</small>
-                    </td>
+                    <td><strong>${booking.name}</strong><br><small>${booking.phone || 'No phone'}</small></td>
                     <td>${roomNames[booking.roomType] || booking.roomType}</td>
                     <td>${formattedCheckIn}</td>
                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            ${booking.status !== 'confirmed' ? 
-                                `<button class="action-btn-small confirm-btn" data-booking-id="${booking.id}">
-                                    <i class="fas fa-check"></i>
-                                </button>` : ''
-                            }
-                            ${booking.status !== 'cancelled' ? 
-                                `<button class="action-btn-small cancel-btn" data-booking-id="${booking.id}">
-                                    <i class="fas fa-times"></i>
-                                </button>` : ''
-                            }
-                            <button class="action-btn-small view-btn" data-booking-id="${booking.id}">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn-small delete-btn" data-booking-id="${booking.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
+                    <td><div class="action-buttons">
+                        ${booking.status !== 'confirmed' ? `<button class="action-btn-small confirm-btn" data-booking-id="${booking.id}"><i class="fas fa-check"></i></button>` : ''}
+                        ${booking.status !== 'cancelled' ? `<button class="action-btn-small cancel-btn" data-booking-id="${booking.id}"><i class="fas fa-times"></i></button>` : ''}
+                        <button class="action-btn-small view-btn" data-booking-id="${booking.id}"><i class="fas fa-eye"></i></button>
+                        <button class="action-btn-small delete-btn" data-booking-id="${booking.id}"><i class="fas fa-trash"></i></button>
+                    </div></td>
                 `;
-                
                 bookingsTableBody.appendChild(row);
             });
-            
-            // Add event listeners
             document.querySelectorAll('.confirm-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (!requireAuth()) return;
-                    currentBookingId = this.getAttribute('data-booking-id');
-                    showConfirmationModal('Confirm Booking', 'Confirm this booking?', 'confirm');
-                });
+                btn.addEventListener('click', function() { if (requireAuth()) { currentBookingId = this.getAttribute('data-booking-id'); showConfirmationModal('Confirm Booking', 'Confirm this booking?', 'confirm'); } });
             });
-            
             document.querySelectorAll('.cancel-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (!requireAuth()) return;
-                    currentBookingId = this.getAttribute('data-booking-id');
-                    showConfirmationModal('Cancel Booking', 'Cancel this booking?', 'cancel');
-                });
+                btn.addEventListener('click', function() { if (requireAuth()) { currentBookingId = this.getAttribute('data-booking-id'); showConfirmationModal('Cancel Booking', 'Cancel this booking?', 'cancel'); } });
             });
-            
             document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (!requireAuth()) return;
-                    viewBookingDetails(this.getAttribute('data-booking-id'));
-                });
+                btn.addEventListener('click', function() { if (requireAuth()) viewBookingDetails(this.getAttribute('data-booking-id')); });
             });
-            
             document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (!requireAuth()) return;
-                    currentBookingId = this.getAttribute('data-booking-id');
-                    showConfirmationModal('Delete Booking', 'Delete this booking?', 'delete');
-                });
+                btn.addEventListener('click', function() { if (requireAuth()) { currentBookingId = this.getAttribute('data-booking-id'); showConfirmationModal('Delete Booking', 'Delete this booking?', 'delete'); } });
             });
         }
 
-        // Show confirmation modal
         function showConfirmationModal(title, message, action) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
@@ -2049,25 +2182,20 @@
             confirmationModal.style.display = 'flex';
         }
 
-        // Hide confirmation modal
         function hideConfirmationModal() {
             confirmationModal.style.display = 'none';
             currentBookingId = null;
             currentAction = null;
         }
 
-        // View booking details
         async function viewBookingDetails(bookingId) {
             if (!requireAuth()) return;
-            
             try {
                 const doc = await db.collection('bookings').doc(bookingId).get();
                 if (doc.exists) {
                     const booking = doc.data();
-                    
                     const checkInDate = new Date(booking.checkIn);
                     const checkOutDate = new Date(booking.checkOut);
-                    
                     const details = `
                         <p><strong>ID:</strong> ${booking.bookingId || bookingId.substring(0, 8)}</p>
                         <p><strong>Name:</strong> ${booking.name}</p>
@@ -2080,105 +2208,63 @@
                         <p><strong>Total:</strong> MYR ${booking.totalPrice ? booking.totalPrice.toFixed(2) : '0.00'}</p>
                         ${booking.specialRequests ? `<p><strong>Requests:</strong> ${booking.specialRequests}</p>` : ''}
                     `;
-                    
                     detailsContent.innerHTML = details;
                     detailsModal.style.display = 'flex';
                 }
-            } catch (error) {
-                console.error('Error viewing booking:', error);
-            }
+            } catch (error) { console.error('Error viewing booking:', error); }
         }
 
-        // Hide details modal
-        function hideDetailsModal() {
-            detailsModal.style.display = 'none';
-        }
+        function hideDetailsModal() { detailsModal.style.display = 'none'; }
 
-        // Update booking status
         async function updateBookingStatus(bookingId, status) {
             if (!requireAuth()) return;
-            
             try {
-                await db.collection('bookings').doc(bookingId).update({
-                    status: status,
-                    updatedAt: new Date().toISOString()
-                });
+                await db.collection('bookings').doc(bookingId).update({ status: status, updatedAt: new Date().toISOString() });
                 loadBookings();
-            } catch (error) {
-                console.error('Error updating booking:', error);
-                alert('Error updating booking');
-            }
+            } catch (error) { alert('Error updating booking'); }
         }
 
-        // Delete booking
         async function deleteBooking(bookingId) {
             if (!requireAuth()) return;
-            
             try {
                 await db.collection('bookings').doc(bookingId).delete();
-                
                 const index = notifications.findIndex(n => n.id === bookingId);
-                if (index !== -1) {
-                    if (!notifications[index].read) unreadCount = Math.max(0, unreadCount - 1);
-                    notifications.splice(index, 1);
-                    updateNotificationBadge();
-                    renderNotifications();
-                }
-                
+                if (index !== -1) { if (!notifications[index].read) unreadCount--; notifications.splice(index, 1); updateNotificationBadge(); renderNotifications(); }
                 processedNotificationIds.delete(bookingId);
                 loadBookings();
-                // If unread becomes zero, stop alarm
                 if (unreadCount === 0) stopAlarmLoop();
-            } catch (error) {
-                console.error('Error deleting booking:', error);
-                alert('Error deleting booking');
-            }
+            } catch (error) { alert('Error deleting booking'); }
         }
 
-        // Delete all bookings
         async function deleteAllBookings() {
             if (!requireAuth()) return;
-            
             try {
                 const snapshot = await db.collection('bookings').get();
                 const batch = db.batch();
                 snapshot.forEach(doc => batch.delete(doc.ref));
                 await batch.commit();
-                
                 notifications = [];
                 unreadCount = 0;
                 processedNotificationIds.clear();
                 updateNotificationBadge();
                 renderNotifications();
                 loadBookings();
-                stopAlarmLoop(); // stop alarm after deleting all
-            } catch (error) {
-                console.error('Error deleting all bookings:', error);
-                alert('Error deleting all bookings');
-            }
+                stopAlarmLoop();
+            } catch (error) { alert('Error deleting all bookings'); }
         }
 
-        // Export to CSV
         async function exportBookingsToCSV() {
             if (!requireAuth()) return;
-            
             try {
                 const snapshot = await db.collection('bookings').orderBy('createdAt', 'desc').get();
-                if (snapshot.empty) {
-                    alert('No bookings to export');
-                    return;
-                }
-                
+                if (snapshot.empty) { alert('No bookings to export'); return; }
                 let csv = 'Booking ID,Name,Email,Phone,Room Type,Check-in,Check-out,Guests,Status,Total Price\n';
-                
                 snapshot.forEach(doc => {
                     const booking = doc.data();
                     const checkIn = new Date(booking.checkIn).toLocaleDateString();
                     const checkOut = new Date(booking.checkOut).toLocaleDateString();
-                    
                     csv += `"${booking.bookingId || ''}","${booking.name || ''}","${booking.email || ''}","${booking.phone || ''}","${roomNames[booking.roomType] || booking.roomType}","${checkIn}","${checkOut}",${booking.guests || 0},"${booking.status || 'pending'}","${booking.totalPrice || '0.00'}"\n`;
                 });
-                
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -2188,17 +2274,13 @@
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
-            } catch (error) {
-                console.error('Error exporting:', error);
-            }
+            } catch (error) { console.error('Error exporting:', error); }
         }
 
-        // Prevent back button cache
         window.addEventListener('pageshow', function(event) {
             if (event.persisted && !auth.currentUser) showLoginPage();
         });
 
-        // Clean up
         window.addEventListener('beforeunload', function() {
             if (notificationsUnsubscribe) notificationsUnsubscribe();
             stopAlarmLoop();
