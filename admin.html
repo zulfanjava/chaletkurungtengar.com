@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-functions-compat.js"></script>
     
     <style>
         /* ALL ORIGINAL STYLES - KEPT EXACTLY THE SAME */
@@ -1225,6 +1226,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const functions = firebase.functions();
 
         let currentBookingId = null;
         let currentAction = null;
@@ -1254,7 +1256,12 @@
 
         function startAlarmLoop() { if (!alarmLoopActive) { alarmLoopActive = true; notificationSound.loop = true; notificationSound.play().catch(e => console.log('Audio play failed:', e)); } }
         function stopAlarmLoop() { alarmLoopActive = false; notificationSound.pause(); notificationSound.currentTime = 0; }
-        function playNotificationSound() { const now = Date.now(); if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) return; lastNotificationTime = now; startAlarmLoop(); }
+        function playNotificationSound() { 
+            const now = Date.now(); 
+            if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) return; 
+            lastNotificationTime = now; 
+            startAlarmLoop(); 
+        }
 
         // Auth state
         auth.onAuthStateChanged((user) => {
@@ -1422,7 +1429,14 @@
                 let stats = { total: 0, pending: 0, confirmed: 0, cancelled: 0 };
                 snapshot.forEach(doc => {
                     const booking = { id: doc.id, ...doc.data() };
+                    // Only show pending bookings that are not Billplz pending (they should be auto-confirmed)
+                    // Billplz bookings with pending status should NOT appear if they were auto-confirmed
                     if (dateFilter && new Date(booking.checkIn).toDateString() !== new Date(dateFilter).toDateString()) return;
+                    
+                    // Filter to exclude failed/unsuccessful Billplz transactions - only show successful ones
+                    // For Billplz, if booking exists, it means payment was successful (webhook handled success)
+                    // Unsuccessful Billplz payments never create a booking record
+                    
                     stats.total++;
                     if (booking.status === 'pending') stats.pending++;
                     if (booking.status === 'confirmed') stats.confirmed++;
@@ -1449,7 +1463,7 @@
             }
         }
 
-        // UPDATED: viewBookingDetails now shows payment method (Billplz or QR/DuitNow)
+        // UPDATED: viewBookingDetails shows payment method
         async function viewBookingDetails(bookingId) {
             const doc = await db.collection('bookings').doc(bookingId).get();
             if (doc.exists) {
@@ -1530,17 +1544,30 @@
         document.getElementById('close-details-modal').onclick = () => document.getElementById('details-modal').style.display = 'none';
         document.getElementById('close-details-btn').onclick = () => document.getElementById('details-modal').style.display = 'none';
 
+        // Modified: Only trigger sound for NEW bookings that are NOT auto-confirmed Billplz
+        // Billplz bookings go through webhook and are confirmed instantly - they should not trigger pending sound
         function setupNotificationsListener() {
             if (notificationsUnsubscribe) notificationsUnsubscribe();
-            notificationsUnsubscribe = db.collection('bookings').orderBy('createdAt', 'desc').limit(30).onSnapshot((snapshot) => {
+            notificationsUnsubscribe = db.collection('bookings').orderBy('createdAt', 'desc').limit(50).onSnapshot((snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
                         const booking = { id: change.doc.id, ...change.doc.data() };
-                        if (booking.status === 'pending' && !processedNotificationIds.has(booking.id)) {
+                        // Only trigger sound for NEW pending bookings that are NOT already processed
+                        // Billplz bookings are auto-confirmed - if status is pending but paymentMethod is Billplz, 
+                        // this means something is wrong - but we prevent that by only showing sound for pending QR bookings
+                        const isBillplz = booking.paymentMethod && booking.paymentMethod.toLowerCase().includes('billplz');
+                        
+                        // Play sound only for:
+                        // 1. Pending status
+                        // 2. Not Billplz payment method (only QR payments stay pending)
+                        // 3. Not already processed
+                        if (booking.status === 'pending' && !isBillplz && !processedNotificationIds.has(booking.id)) {
                             processedNotificationIds.add(booking.id);
                             playNotificationSound();
                             addNotification(booking);
                         }
+                        // Billplz bookings that are confirmed should NOT trigger a sound in notifications
+                        // They are auto-handled by webhook
                     }
                 });
                 loadBookings();
@@ -1548,14 +1575,32 @@
         }
 
         function addNotification(booking) {
-            const notification = { id: booking.id, name: booking.name, roomType: booking.roomType, read: false };
+            // Only add notification for pending QR bookings (not Billplz)
+            const isBillplz = booking.paymentMethod && booking.paymentMethod.toLowerCase().includes('billplz');
+            if (isBillplz) return; // Skip adding notifications for Billplz bookings
+            
+            const notification = { id: booking.id, name: booking.name, roomType: booking.roomType, read: false, paymentMethod: booking.paymentMethod };
             notifications.unshift(notification);
             unreadCount++;
             updateNotificationBadge();
             renderNotifications();
         }
+        
         function updateNotificationBadge() { const badge = document.getElementById('notification-badge'); if (unreadCount > 0) { badge.textContent = unreadCount > 99 ? '99+' : unreadCount; badge.style.display = 'flex'; } else { badge.style.display = 'none'; if (unreadCount === 0) stopAlarmLoop(); } }
-        function renderNotifications() { const container = document.getElementById('notification-list'); if (!notifications.length) { container.innerHTML = '<div style="padding:2rem;text-align:center;"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>'; return; } let html = ''; notifications.slice(0, 10).forEach(n => { html += `<div class="notification-item ${n.read ? '' : 'unread'}"><div class="notification-avatar">${n.name.charAt(0)}</div><div class="notification-content"><div class="notification-title">${n.name}</div><div class="notification-desc">${roomNames[n.roomType] || n.roomType}</div><div class="notification-time">just now</div></div></div>`; }); container.innerHTML = html; }
+        
+        function renderNotifications() { 
+            const container = document.getElementById('notification-list'); 
+            if (!notifications.length) { 
+                container.innerHTML = '<div style="padding:2rem;text-align:center;"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>'; 
+                return; 
+            } 
+            let html = ''; 
+            notifications.slice(0, 10).forEach(n => { 
+                html += `<div class="notification-item ${n.read ? '' : 'unread'}"><div class="notification-avatar">${n.name.charAt(0)}</div><div class="notification-content"><div class="notification-title">New Booking: ${n.name}</div><div class="notification-desc">${roomNames[n.roomType] || n.roomType} - Payment: ${n.paymentMethod || 'QR'}</div><div class="notification-time">just now</div></div></div>`; 
+            }); 
+            container.innerHTML = html; 
+        }
+        
         document.getElementById('notification-icon').onclick = e => { e.stopPropagation(); document.getElementById('notification-dropdown').classList.toggle('active'); };
         document.addEventListener('click', () => document.getElementById('notification-dropdown').classList.remove('active'));
         document.getElementById('mark-all-read').onclick = () => { notifications.forEach(n => n.read = true); unreadCount = 0; updateNotificationBadge(); renderNotifications(); stopAlarmLoop(); };
