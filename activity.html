@@ -1688,7 +1688,157 @@
                 min-height: 400px;
             }
         }
-    </style>
+
+
+/* =============================================================
+   SIGNATURE COLLECTION | CINEMATIC LUXURY ACTIVITIES
+   Visual-only overrides. Original selectors and functionality kept.
+   ============================================================= */
+:root {
+  --signature-ink:#171a19; --signature-forest:#202b28;
+  --signature-gold:#c4a476; --signature-champagne:#e4d1ad;
+  --signature-cream:#f7f3eb; --signature-white:#fffdf9;
+  --signature-muted:#716e67; --signature-line:rgba(107,86,55,.17);
+  --signature-shadow:0 24px 70px rgba(35,29,21,.10);
+}
+html {scroll-behavior:smooth;scroll-padding-top:105px}
+body {background:var(--signature-cream);color:var(--signature-ink);font-family:'Inter',sans-serif}
+::selection {background:var(--signature-gold);color:#171a19}
+:focus-visible {outline:3px solid var(--signature-gold);outline-offset:4px}
+h1,h2,h3,h4 {font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:.01em}
+header {background:rgba(255,253,249,.94);border-bottom:1px solid var(--signature-line);box-shadow:0 8px 35px rgba(21,24,20,.07);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.header-top {background:var(--signature-forest);border-bottom:1px solid rgba(255,255,255,.1)}
+.header-top .contact-info span,.header-top .contact-info i,.header-top .social-icons a {color:#f5ead9}
+.header-top .social-icons a {background:rgba(255,255,255,.09)}
+.header-top .social-icons a:hover {background:var(--signature-gold);color:var(--signature-ink)}
+.header-main {padding:10px 0}
+.logo-img {border:1px solid var(--signature-line);border-radius:12px;box-shadow:none}
+.logo-text {border-color:var(--signature-line)}
+.logo-text h1,.footer-logo-text h3 {color:var(--signature-forest);font-weight:500}
+.logo-text p {color:#8c7656;letter-spacing:.19em}
+nav a {color:var(--signature-forest);border-radius:999px;font-weight:600;letter-spacing:.11em}
+nav a:hover,nav a.active {color:#795a30;background:rgba(196,164,118,.13)}
+nav a:after {background:var(--signature-gold)}
+.dropdown-menu {background:var(--signature-white);border:1px solid var(--signature-line);border-radius:16px;box-shadow:var(--signature-shadow)}
+.dropdown-menu a {color:var(--signature-forest);border-color:var(--signature-line)}
+.dropdown-menu a:hover {background:var(--signature-cream);color:#876539}
+.cart-icon,.menu-toggle {color:var(--signature-forest)}
+.cart-count {background:var(--signature-gold);color:var(--signature-ink)}
+.book-now-btn,.cta-button,.category-btn.active {background:var(--signature-forest);color:var(--signature-white);border:1px solid var(--signature-forest);border-radius:999px;box-shadow:0 12px 30px rgba(32,43,40,.17)}
+.book-now-btn,.cta-button,.contact-btn,.category-btn {position:relative;overflow:hidden;isolation:isolate;transition:transform .35s ease,box-shadow .35s ease,background .35s ease,color .35s ease}
+.book-now-btn::before,.cta-button::before,.contact-btn::before {content:'';position:absolute;inset:-100% auto -100% -65%;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);transform:rotate(24deg);transition:left .75s ease;pointer-events:none;z-index:-1}
+.book-now-btn:hover::before,.cta-button:hover::before,.contact-btn:hover::before {left:135%}
+.book-now-btn:hover,.cta-button:hover {background:var(--signature-gold);color:var(--signature-ink);border-color:var(--signature-gold);transform:translateY(-3px);box-shadow:0 18px 40px rgba(98,72,38,.22)}
+.activity-hero {min-height:650px;height:min(83vh,900px);background-image:linear-gradient(115deg,rgba(13,22,20,.83),rgba(23,30,27,.42) 58%,rgba(16,25,22,.67)),url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=85');background-size:cover;background-position:center;overflow:hidden;border:0;isolation:isolate;animation:signatureHeroPan 22s ease-in-out infinite alternate}
+.activity-hero::before {content:'';position:absolute;width:min(65vw,760px);aspect-ratio:1;top:-42%;right:-15%;border:1px solid rgba(228,209,173,.28);border-radius:50%;box-shadow:0 0 0 75px rgba(228,209,173,.035),0 0 0 150px rgba(228,209,173,.025);pointer-events:none;animation:signatureOrbit 18s ease-in-out infinite alternate}
+.activity-hero::after {content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 72% 32%,rgba(227,197,142,.16),transparent 43%);pointer-events:none;animation:signatureAtmosphere 9s ease-in-out infinite alternate}
+.activity-hero-content {position:relative;z-index:2;animation:signatureReveal 1.15s both}
+.activity-hero h2 {font-size:clamp(3.3rem,7.6vw,7rem);line-height:1.02;font-weight:400;letter-spacing:-.025em;color:#fffaf1;text-shadow:0 12px 40px rgba(0,0,0,.28)}
+.activity-hero p {font-size:clamp(1rem,1.6vw,1.3rem);color:#f4eadc;line-height:1.9;max-width:680px}
+.activity-hero .cta-button {background:var(--signature-champagne);color:var(--signature-forest);border-color:var(--signature-champagne)}
+.activity-hero .cta-button.outline {background:rgba(255,255,255,.08);color:white;border-color:rgba(255,255,255,.65);backdrop-filter:blur(10px)}
+.activity-hero .cta-button:hover,.activity-hero .cta-button.outline:hover {background:white;color:var(--signature-forest);border-color:white}
+.activity-section {margin:clamp(4rem,8vw,8rem) auto}
+.section-header {margin-bottom:3.5rem}
+.section-subtitle {color:#9d7a49;font-size:.8rem;font-weight:700;letter-spacing:.32em}
+.section-title {color:var(--signature-forest);font-size:clamp(2.6rem,5vw,4.5rem);font-weight:500;line-height:1.12}
+.section-divider {width:72px;height:2px;background:linear-gradient(90deg,transparent,var(--signature-gold),transparent)}
+.activities-grid {gap:clamp(1.25rem,2.7vw,2.5rem)}
+.activity-card {background:var(--signature-white);border:1px solid var(--signature-line);border-radius:22px;box-shadow:var(--signature-shadow);position:relative;isolation:isolate;transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s ease,border-color .4s ease}
+.activity-card::after {content:'';position:absolute;inset:0;border-radius:inherit;border:1px solid transparent;pointer-events:none;transition:border-color .4s ease}
+.activity-card:hover {transform:translateY(-13px);box-shadow:0 36px 80px rgba(38,32,22,.18);border-color:rgba(196,164,118,.55)}
+.activity-card:hover::after {border-color:rgba(196,164,118,.45)}
+.activity-image {height:280px;object-fit:cover;transition:transform 1s cubic-bezier(.2,.8,.2,1),filter .6s ease}
+.activity-card:hover .activity-image {transform:scale(1.075);filter:saturate(1.12)}
+.activity-content {padding:clamp(1.4rem,3vw,2.5rem)}
+.activity-title {font-size:clamp(1.8rem,2.5vw,2.4rem);color:var(--signature-forest);font-weight:500}
+.activity-description {color:var(--signature-muted)}
+.activity-feature {background:#f3ecdf;color:#6c5739;border:1px solid rgba(196,164,118,.23);border-radius:999px;padding:.55rem .9rem}
+.activity-feature i {color:#9d7845}
+.activity-price,.boat-price,.jetski-price,.kayak-price {color:#9c7745;font-weight:700}
+.activity-price span {color:var(--signature-muted)}
+.contact-btn {border-radius:999px;background:#f2ede4;color:var(--signature-forest);border-color:var(--signature-line);padding:14px 16px}
+.contact-btn i {color:#987346}
+.contact-btn.call:hover {background:var(--signature-forest)}
+.contact-btn.whatsapp {background:#187e5b;border-color:#187e5b}
+.contact-btn.whatsapp:hover {background:#116649;transform:translateY(-3px)}
+.activity-price-table,.bbq-menu-table {background:var(--signature-white);border:1px solid var(--signature-line);border-radius:16px;box-shadow:0 12px 35px rgba(35,29,21,.06)}
+.activity-price-table th,.bbq-menu-table th,.schedule-table th {background:var(--signature-forest);color:#fff9ed}
+.activity-price-table td,.bbq-menu-table td,.schedule-table td {border-color:var(--signature-line)}
+.activity-price-table tr:nth-child(even),.bbq-menu-table tr:nth-child(even) {background:#f7f1e7}
+.bbq-menu-table .menu-section {background:#ede2d0;color:#57452d;border-left-color:var(--signature-gold)}
+.bbq-menu-table .menu-price {color:#946f3e}
+.kayak-pricing {background:#f0e7d9;border-color:var(--signature-line);border-radius:20px}
+.kayak-option,.boat-option,.jetski-option {background:var(--signature-white);border:1px solid var(--signature-line);border-radius:16px;box-shadow:0 10px 30px rgba(35,29,21,.06);transition:transform .4s ease,box-shadow .4s ease}
+.kayak-option:hover,.boat-option:hover,.jetski-option:hover {transform:translateY(-6px);box-shadow:0 22px 45px rgba(35,29,21,.13)}
+.deposit-badge {background:#f3e4cb;color:#76572e}
+.entertainment-gallery-section,.watersports-gallery-section,.dining-gallery-section,.boat-jetski-gallery-section {background:linear-gradient(135deg,#fbf8f1,#ece3d5);border:1px solid var(--signature-line);border-radius:28px;box-shadow:0 18px 45px rgba(35,29,21,.045)}
+.entertainment-image,.watersports-image,.dining-image,.boat-jetski-image {border-radius:16px;box-shadow:0 16px 35px rgba(25,24,21,.12);transition:transform .65s cubic-bezier(.2,.8,.2,1),filter .65s ease,box-shadow .65s ease}
+.entertainment-image:hover,.watersports-image:hover,.dining-image:hover,.boat-jetski-image:hover {transform:translateY(-9px) scale(1.025);filter:saturate(1.12);box-shadow:0 25px 55px rgba(25,24,21,.2)}
+.policy-card,.schedule-card {background:var(--signature-white);border:1px solid var(--signature-line);border-radius:20px;box-shadow:var(--signature-shadow);transition:transform .45s ease,box-shadow .45s ease}
+.policy-card:hover,.schedule-card:hover {transform:translateY(-8px);box-shadow:0 30px 65px rgba(35,29,21,.13)}
+.policy-list li {color:var(--signature-muted)}
+.policy-list li:before {color:#a7824f}
+.schedule-section {background:#efe8dd;border-color:var(--signature-line)}
+.booking-banner {position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(125deg,#16231f,#344039 52%,#182520);padding:clamp(4rem,8vw,7rem) 1.5rem}
+.booking-banner::before {content:'';position:absolute;inset:-60%;background:repeating-radial-gradient(circle at center,transparent 0 65px,rgba(226,203,160,.075) 66px 67px,transparent 68px 135px);animation:signatureBannerDrift 30s linear infinite;pointer-events:none;z-index:-1}
+.booking-banner h2 {font-size:clamp(2.4rem,5vw,4.2rem);color:#fff7e9}
+.booking-banner p {color:#eadcc8}
+footer {background:#1c2723;color:#d5c9b7;border-top:1px solid rgba(228,209,173,.16);margin-top:0}
+.footer-logo-text h3,.footer-column h3 {color:#fff5e4}
+.footer-logo-text p,.footer-contact-info,.footer-links a,.newsletter-form p,.copyright {color:#c9bdab}
+.footer-column h3:after {background:var(--signature-gold)}
+.footer-links a:hover,.footer-contact-info i {color:var(--signature-champagne)}
+.footer-logo-img {border-color:rgba(228,209,173,.35)}
+.newsletter-input input {background:#fffaf3;color:var(--signature-ink);border-color:var(--signature-line);border-radius:12px 0 0 12px;min-width:0}
+.newsletter-input button {background:var(--signature-gold);color:#1b2521;border-radius:0 12px 12px 0}
+.newsletter-input button:hover {background:var(--signature-champagne)}
+.copyright {border-top-color:rgba(228,209,173,.18)}
+.gallery-modal {background:rgba(9,14,12,.96);backdrop-filter:blur(12px)}
+.gallery-modal-img {border-radius:16px;box-shadow:0 25px 80px rgba(0,0,0,.45)}
+.gallery-modal-close {color:var(--signature-champagne);transition:transform .3s ease}
+.gallery-modal-close:hover {transform:rotate(90deg)}
+.category-btn {background:var(--signature-white);color:var(--signature-forest);border-color:var(--signature-line);border-radius:999px}
+.category-btn:hover {background:#eee1cb;transform:translateY(-3px)}
+.category-btn.active {background:var(--signature-forest);color:white;border-color:var(--signature-forest)}
+.fade-in {animation:signatureReveal .85s cubic-bezier(.2,.8,.2,1) both}
+@keyframes signatureReveal {from {opacity:0;transform:translateY(28px)}to {opacity:1;transform:translateY(0)}}
+@keyframes signatureHeroPan {from {background-position:50% 45%}to {background-position:53% 55%}}
+@keyframes signatureOrbit {from {transform:translate3d(0,0,0) rotate(0)}to {transform:translate3d(-35px,45px,0) rotate(22deg)}}
+@keyframes signatureAtmosphere {from {opacity:.45}to {opacity:1}}
+@keyframes signatureBannerDrift {from {transform:rotate(0deg)}to {transform:rotate(360deg)}}
+@media(max-width:992px) {
+ nav ul {background:var(--signature-white);border:1px solid var(--signature-line);border-radius:16px}
+ nav a {border-radius:8px}
+ .dropdown-menu {background:var(--signature-cream);border-radius:12px}
+ .activity-hero {height:70vh;min-height:520px}
+}
+@media(max-width:768px) {
+ .activity-hero {height:auto;min-height:540px;padding:5rem 1.25rem}
+ .activity-hero h2 {font-size:clamp(2.5rem,10vw,4rem)}
+ .activity-hero::before {width:85vw;right:-40%;top:-20%}
+ .activity-section {margin:4rem auto}
+ .activities-grid {grid-template-columns:minmax(0,1fr)}
+ .activity-card {border-radius:18px}
+ .activity-image {height:240px}
+ .entertainment-gallery-section,.watersports-gallery-section,.dining-gallery-section,.boat-jetski-gallery-section {border-radius:18px}
+ .contact-buttons {flex-direction:column}
+ .contact-btn {width:100%}
+ .activity-price-table,.bbq-menu-table {display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+@media(max-width:480px) {
+ .activity-hero {min-height:490px}
+ .activity-hero h2 {font-size:clamp(2.2rem,10vw,3.2rem)}
+ .activity-hero p {font-size:1rem}
+ .activity-image {height:210px}
+ .activity-feature {border-radius:12px}
+ .section-title {font-size:2.25rem}
+}
+@media(prefers-reduced-motion:reduce) {
+ *,*::before,*::after {animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+</style>
 </head>
 <body>
     <!-- Header & Navigation -->
