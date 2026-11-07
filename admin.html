@@ -1152,7 +1152,7 @@
                 <button type="submit" class="login-btn">Login to Admin Panel</button>
                 <div class="login-error" id="login-error">Invalid email or password</div>
             </form>
-            <div class="login-info"><p>Default Admin Credentials:</p><p><strong>Email:</strong> admin@chalet.com</p><p><strong>Password:</strong> admin123</p></div>
+            <div class="login-info"><p>Sign in with your administrator account.</p></div>
         </div>
     </div>
 
@@ -1190,7 +1190,7 @@
             <div class="blocked-section">
                 <div class="blocked-header"><h3><i class="fas fa-ban" style="color:#f44336;"></i> Blocked Dates</h3>
                     <div class="blocked-controls">
-                        <div class="blocked-control-group"><label>Room Type</label><select id="block-room-select"><option value="queen">Standard Queen (Upper Floor)</option><option value="standard">Standard Triple (Ground Floor)</option><option value="wheelchair">Standard Triple Wheelchair Accessible</option><option value="queen-sofabed">Standard Queen with Sofabed</option><option value="family">Standard Family (Ground Floor)</option><option value="seaview">Seaview Queen (Upper Floor)</option><option value="triple">Seaview Triple (Ground Floor)</option><option value="seaview-family">Seaview Family (Ground Floor)</option><option value="superior">Superior Seaview (Ground Floor)</option></select></div>
+                        <div class="blocked-control-group"><label>Room Type</label><select id="block-room-select"><option value="queen">Standard Queen (3B, 6B, 7B, 9B, 10B)</option><option value="standard">Standard Triple (6A, 7A, 9A, 10A)</option><option value="wheelchair">Standard Triple Wheelchair Accessible (11A)</option><option value="queen-sofabed">Standard Queen with Sofabed (8B, 11B)</option><option value="family">Standard Family (8A)</option><option value="superior-standard-family">Superior Standard Family (3A)</option><option value="seaview">Seaview Queen (13B, 14B, 15B)</option><option value="superior-seaview-queen">Superior Seaview Queen (1B, 2B, 4B, 5B, 12B)</option><option value="triple">Seaview Triple (13A, 15A)</option><option value="superior-seaview-triple">Superior Seaview Triple (2A, 4A, 12A)</option><option value="seaview-family">Superior Seaview Family (1A)</option><option value="superior">Superior Seaview Room (5A)</option></select></div>
                         <div class="blocked-control-group"><label>Start Date</label><input type="date" id="block-start-date"></div>
                         <div class="blocked-control-group"><label>End Date</label><input type="date" id="block-end-date"></div>
                         <button class="btn-block-add" id="add-blocked-range"><i class="fas fa-plus-circle"></i> Block Date Range</button>
@@ -1203,7 +1203,7 @@
                 </div>
             </div>
 
-            <section class="filter-section"><h3 class="filter-title">Filter Bookings</h3><div class="filter-controls"><div class="filter-group"><label>Status</label><select id="filter-status"><option value="all">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option></select></div><div class="filter-group"><label>Room Type</label><select id="filter-room"><option value="all">All Rooms</option><option value="queen">Standard Queen</option><option value="seaview">Seaview Queen</option><option value="triple">Seaview Triple</option><option value="standard">Standard Triple</option><option value="family">Standard Family</option><option value="superior">Superior Seaview</option><option value="seaview-family">Seaview Family</option></select></div><div class="filter-group"><label>Check-in Date</label><input type="date" id="filter-date" class="filter-input"></div><div class="filter-actions"><button class="filter-btn" id="apply-filters"><i class="fas fa-filter"></i> Apply</button><button class="filter-btn clear" id="clear-filters"><i class="fas fa-times"></i> Clear</button></div></div></section>
+            <section class="filter-section"><h3 class="filter-title">Filter Bookings</h3><div class="filter-controls"><div class="filter-group"><label>Status</label><select id="filter-status"><option value="all">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option></select></div><div class="filter-group"><label>Room Type</label><select id="filter-room"><option value="all">All Rooms</option><option value="queen">Standard Queen</option><option value="standard">Standard Triple</option><option value="wheelchair">Standard Triple Wheelchair Accessible</option><option value="queen-sofabed">Standard Queen with Sofabed</option><option value="family">Standard Family</option><option value="superior-standard-family">Superior Standard Family</option><option value="seaview">Seaview Queen</option><option value="superior-seaview-queen">Superior Seaview Queen</option><option value="triple">Seaview Triple</option><option value="superior-seaview-triple">Superior Seaview Triple</option><option value="seaview-family">Superior Seaview Family</option><option value="superior">Superior Seaview Room</option></select></div><div class="filter-group"><label>Check-in Date</label><input type="date" id="filter-date" class="filter-input"></div><div class="filter-actions"><button class="filter-btn" id="apply-filters"><i class="fas fa-filter"></i> Apply</button><button class="filter-btn clear" id="clear-filters"><i class="fas fa-times"></i> Clear</button></div></div></section>
             <section class="bookings-section"><div class="section-header"><h2 class="section-title">Booking Management</h2><div class="section-actions"><button class="action-btn export-btn" id="export-bookings"><i class="fas fa-download"></i> Export</button><button class="action-btn delete-all-btn" id="delete-all-bookings"><i class="fas fa-trash"></i> Delete All</button></div></div><div class="spinner" id="bookings-spinner"></div><div class="table-container"><table class="bookings-table" id="bookings-table"><thead><tr><th>ID</th><th>Guest</th><th>Room</th><th>Check-in</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bookings-table-body"></tbody></table><div class="no-bookings" id="no-bookings-message">No bookings found</div></div></section>
         </main>
         <footer class="admin-footer"><div class="footer-content"><p>&copy; <span id="current-year"></span> Chalet Kurung Tengor</p><p>Admin Panel v1.0</p></div></footer>
@@ -1241,14 +1241,17 @@
         // Room name mapping
         const roomNames = {
             'queen': 'Standard Queen',
-            'seaview': 'Seaview Queen',
-            'triple': 'Seaview Triple',
             'standard': 'Standard Triple',
+            'wheelchair': 'Standard Triple Wheelchair Accessible',
+            'queen-sofabed': 'Standard Queen with Sofabed',
             'family': 'Standard Family',
-            'superior': 'Superior Seaview',
-            'seaview-family': 'Seaview Family',
-            'wheelchair': 'Wheelchair Accessible',
-            'queen-sofabed': 'Queen w/ Sofabed'
+            'superior-standard-family': 'Superior Standard Family',
+            'seaview': 'Seaview Queen',
+            'superior-seaview-queen': 'Superior Seaview Queen',
+            'triple': 'Seaview Triple',
+            'superior-seaview-triple': 'Superior Seaview Triple',
+            'seaview-family': 'Superior Seaview Family',
+            'superior': 'Superior Seaview Room'
         };
 
         // Audio for notifications
@@ -1349,8 +1352,8 @@
                 return;
             }
             
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+            const start = new Date(startDate + 'T00:00:00');
+            const end = new Date(endDate + 'T00:00:00');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
@@ -1366,7 +1369,7 @@
             
             let blockedCount = 0;
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                const dateStr = d.toISOString().split('T')[0];
+                const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                 const docId = `${roomType}_${dateStr}`;
                 try {
                     await db.collection('blocked_dates').doc(docId).set({
